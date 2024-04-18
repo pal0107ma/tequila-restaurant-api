@@ -1,0 +1,26 @@
+type Query {
+  userProfile(id: ID): User  
+}
+
+type Mutation {
+  updateUser(
+    email: String, 
+    password: String, 
+    "security requires the user password when user changes his password or email"
+    security: String, 
+    username: String, 
+    firstName: String, 
+    lastName: String, 
+  ): User 
+}
+
+type User {
+  id: ID
+  email: String
+  username: String
+  accountConfirmed: Boolean
+  firstName: String
+  lastName: String
+  createdAt: String
+  updatedAt: String
+}
