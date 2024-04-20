@@ -1,5 +1,15 @@
 type Query {
   userProfile(id: ID): User  
+
+  restaurant(id: ID!): Restaurant
+
+  restaurants(
+    q: String, 
+    plan: restaurantPlanEnum, 
+    status: restaurantStatusEnum, 
+    offset: Int, 
+    count: Int, 
+  ): [Restaurant]
 }
 
 type Mutation {
@@ -12,6 +22,66 @@ type Mutation {
     firstName: String, 
     lastName: String, 
   ): User 
+
+  addRestaurant(
+    name: String!,
+    plan: restaurantPlanEnum!,
+    status: restaurantStatusEnum!
+  ): Restaurant
+
+  updateRestaurant(
+    name: String,
+    plan: restaurantPlanEnum,
+    status: restaurantStatusEnum,
+    id: ID!
+  ): Restaurant
+
+  deleteRestaurant(id: ID!): Restaurant
+
+}
+
+type Restaurant {
+  id: ID
+  "min length 3 max length 60"
+  name: String
+  "in SILVER, DIAMOND, GOLD"
+  plan: String
+  "in ACTIVE, CANCELLED, SUSPENDED"
+  status: String
+  branchOffices: [BranchOffice]
+  userId: String
+  updatedAt: String
+  createdAt: String
+}
+
+type BranchOffice {
+  id: ID
+  "min length 3 max length 60"
+  name: String
+  "min length 3 max length 60"
+  zone: String
+  "min length 3 max length 60"
+  city: String
+  "min length 3 max length 60"
+  address: String
+  "min length 3 max length 60"
+  state: String
+  zip: Int
+  updatedAt: String
+  createdAt: String
+}
+
+enum restaurantPlanEnum {
+  STARTER
+  SILVER
+  DIAMOND
+  GOLD
+}
+
+enum restaurantStatusEnum {
+  ACTIVE
+  CANCELLED
+  SUSPENDED
 }
 
 type User {
