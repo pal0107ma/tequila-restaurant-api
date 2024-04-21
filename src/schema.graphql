@@ -33,10 +33,34 @@ type Mutation {
     name: String,
     plan: restaurantPlanEnum,
     status: restaurantStatusEnum,
-    id: ID!
+    id: ID!,
+    branchOffices: [updateBranchOfficeInput]
   ): Restaurant
 
   deleteRestaurant(id: ID!): Restaurant
+
+  addBranchOffice(
+    "restaurant id"
+    id: ID!,
+    "min length 3 max length 60"
+    name: String!,
+    "min length 3 max length 60"
+    zone: String!,
+    "min length 3 max length 60"
+    city: String!,
+    "min length 3 max length 100"
+    address: String!,
+    "min length 3 max length 60"
+    state: String!,
+    zip: Int!
+  ): Restaurant
+
+  deleteBranchOffice(
+    "branch office id"
+    id: ID!, 
+    "restaurant id"
+    restaurantId: ID!
+  ): Restaurant
 
 }
 
@@ -49,6 +73,7 @@ type Restaurant {
   "in ACTIVE, CANCELLED, SUSPENDED"
   status: String
   branchOffices: [BranchOffice]
+  branchOffice(id: ID!): BranchOffice
   userId: String
   updatedAt: String
   createdAt: String
@@ -56,19 +81,24 @@ type Restaurant {
 
 type BranchOffice {
   id: ID
-  "min length 3 max length 60"
   name: String
-  "min length 3 max length 60"
   zone: String
-  "min length 3 max length 60"
   city: String
-  "min length 3 max length 60"
   address: String
-  "min length 3 max length 60"
   state: String
   zip: Int
   updatedAt: String
   createdAt: String
+}
+
+input updateBranchOfficeInput {
+  id: ID!
+  name: String
+  zone: String
+  city: String
+  address: String
+  state: String
+  zip: Int
 }
 
 enum restaurantPlanEnum {

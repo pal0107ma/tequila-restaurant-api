@@ -5,12 +5,16 @@ import restaurant from './resolvers/restaurants/restaurant.js'
 import restaurants from './resolvers/restaurants/restaurants.js'
 import updateRestaurant from './resolvers/restaurants/updateRestaurant.js'
 import deleteRestaurant from './resolvers/restaurants/deleteRestaurant.js'
+import addBranchOffice from './resolvers/branch-offices/addBranchOffice.js'
+import deleteBranchOffice from './resolvers/branch-offices/deleteBranchOffice.js'
+
 const resolvers = {
   User: {
     id: (parent) => parent.id ?? parent._id
   },
   Restaurant: {
-    id: (parent) => parent.id ?? parent._id
+    id: (parent) => parent.id ?? parent._id,
+    branchOffice: (parent,{id}) => parent.branchOffices.find(({_id})=> _id === id) 
   },
   BranchOffice: {
     id: (parent) => parent.id ?? parent._id
@@ -24,7 +28,9 @@ const resolvers = {
     updateUser,
     addRestaurant,
     updateRestaurant,
-    deleteRestaurant
+    deleteRestaurant,
+    addBranchOffice,
+    deleteBranchOffice
   }
 }
 
