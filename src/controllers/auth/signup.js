@@ -73,6 +73,16 @@ const signup = async (req = request, res = response) => {
       tokens: [{ }]
     })
 
+    // ASSIGN ROLE
+
+    const superAdmin = await User.findOne({ role: 'SUPER-ADMIN'})
+
+    if(!superAdmin) {
+      user.role = 'SUPER-ADMIN'
+    }
+
+    // SAVE
+
     await user.save()
 
     // SEND CONFIRMATION EMAIL
