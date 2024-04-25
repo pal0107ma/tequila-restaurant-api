@@ -134,6 +134,7 @@ input updateBranchOfficeInput {
   city: String
   address: String
   state: String
+  country: String
   zip: Int
 }
 
