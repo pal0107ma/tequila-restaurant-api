@@ -23,6 +23,7 @@ async function updateRestaurant (__,args, context) {
       city: Joi.string().min(3).max(60).optional().empty(null),
       address: Joi.string().min(3).max(100).optional().empty(null),
       state: Joi.string().min(3).max(60).optional().empty(null),
+      country: Joi.string().min(2).max(2).optional().empty(null),
       zip: Joi.number().integer().optional().empty(null),
       id: idSchema
     })).optional().empty(null)
@@ -40,7 +41,10 @@ async function updateRestaurant (__,args, context) {
     })
   }
 
-  let restaurant = await Restaurant.findOneAndUpdate({_id:id, userId: context.user._id}, updateInput)
+  let restaurant = await Restaurant.findOneAndUpdate({_id:id, userId: context.user._id}, updateInput).populate({ 
+    path:'branchOffices.affiliates.userId',
+    select: 'firstName lastName email'
+  })
 
   if(!restaurant) return null
 

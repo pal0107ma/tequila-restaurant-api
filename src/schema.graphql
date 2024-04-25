@@ -1,39 +1,39 @@
 type Query {
-  userProfile(id: ID): User  
+  userProfile(id: ID): User
 
   restaurant(id: ID!): Restaurant
 
   restaurants(
-    q: String, 
-    plan: restaurantPlanEnum, 
-    status: restaurantStatusEnum, 
-    offset: Int, 
-    count: Int, 
+    q: String
+    plan: restaurantPlanEnum
+    status: restaurantStatusEnum
+    offset: Int
+    count: Int
   ): [Restaurant]
 }
 
 type Mutation {
   updateUser(
-    email: String, 
-    password: String, 
+    email: String
+    password: String
     "security requires the user password when user changes his password or email"
-    security: String, 
-    username: String, 
-    firstName: String, 
-    lastName: String, 
-  ): User 
+    security: String
+    username: String
+    firstName: String
+    lastName: String
+  ): User
 
   addRestaurant(
-    name: String!,
-    plan: restaurantPlanEnum!,
+    name: String!
+    plan: restaurantPlanEnum!
     status: restaurantStatusEnum!
   ): Restaurant
 
   updateRestaurant(
-    name: String,
-    plan: restaurantPlanEnum,
-    status: restaurantStatusEnum,
-    id: ID!,
+    name: String
+    plan: restaurantPlanEnum
+    status: restaurantStatusEnum
+    id: ID!
     branchOffices: [updateBranchOfficeInput]
   ): Restaurant
 
@@ -41,27 +41,49 @@ type Mutation {
 
   addBranchOffice(
     "restaurant id"
-    id: ID!,
+    id: ID!
     "min length 3 max length 60"
-    name: String!,
+    name: String!
     "min length 3 max length 60"
-    zone: String!,
+    zone: String!
     "min length 3 max length 60"
-    city: String!,
+    city: String!
     "min length 3 max length 100"
-    address: String!,
+    address: String!
     "min length 3 max length 60"
-    state: String!,
+    state: String!
+    "min length 2 max length 2"
+    country: String!
+
     zip: Int!
   ): Restaurant
 
   deleteBranchOffice(
     "branch office id"
-    id: ID!, 
+    id: ID!
     "restaurant id"
     restaurantId: ID!
   ): Restaurant
 
+  addAffiliate(
+    "branch office id"
+    branchOfficeId: ID!
+    "restaurant id"
+    id: ID!
+    "affiliate role"
+    role: branchOfficeAffiliateRoleEnum!
+    "user email"
+    email: String!
+  ): Restaurant
+
+  deleteAffiliate(
+    "branch office id"
+    branchOfficeId: ID!
+    "restaurant id"
+    id: ID!
+    "affiliate role"
+    affiliateId: ID!
+  ): Restaurant
 }
 
 type Restaurant {
@@ -89,6 +111,20 @@ type BranchOffice {
   zip: Int
   updatedAt: String
   createdAt: String
+  affiliates: [Affiliate]
+}
+
+type Affiliate {
+  id: ID
+  user: AffiliateUser
+  role: branchOfficeAffiliateRoleEnum
+}
+
+type AffiliateUser {
+  id: ID
+  firstName: String
+  lastName: String
+  email: String
 }
 
 input updateBranchOfficeInput {
@@ -123,4 +159,17 @@ type User {
   lastName: String
   createdAt: String
   updatedAt: String
+  role: userRoleEnum
+}
+
+enum branchOfficeAffiliateRoleEnum {
+  STORER
+  HR
+  COUNTER
+  CHEF
+}
+
+enum userRoleEnum {
+  SUPER_ADMIN
+  ADMIN
 }

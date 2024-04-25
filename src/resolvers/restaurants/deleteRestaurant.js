@@ -19,7 +19,10 @@ async function deleteRestaurant (__,{id},context) {
     })
   }
 
-  let restaurant = await Restaurant.findOneAndDelete({_id:id, userId: context.user._id})
+  let restaurant = await Restaurant.findOneAndDelete({_id:id, userId: context.user._id}).populate({ 
+    path:'branchOffices.affiliates.userId',
+    select: 'firstName lastName email'
+  })
 
   if(!restaurant) return null
 

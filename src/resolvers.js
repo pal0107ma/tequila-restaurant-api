@@ -7,6 +7,8 @@ import updateRestaurant from './resolvers/restaurants/updateRestaurant.js'
 import deleteRestaurant from './resolvers/restaurants/deleteRestaurant.js'
 import addBranchOffice from './resolvers/branch-offices/addBranchOffice.js'
 import deleteBranchOffice from './resolvers/branch-offices/deleteBranchOffice.js'
+import addAffiliate from './resolvers/affiliate/addAffiliate.js'
+import deleteAffiliate from './resolvers/affiliate/deleteAffiliate.js'
 
 const resolvers = {
   User: {
@@ -17,6 +19,13 @@ const resolvers = {
     branchOffice: (parent,{id}) => parent.branchOffices.find(({_id})=> _id === id) 
   },
   BranchOffice: {
+    id: (parent) => parent.id ?? parent._id
+  },
+  Affiliate: {
+    id: (parent) => parent.id ?? parent._id,
+    user: (parent) => parent.userId
+  },
+  AffiliateUser: {
     id: (parent) => parent.id ?? parent._id
   },
   Query: {
@@ -30,7 +39,9 @@ const resolvers = {
     updateRestaurant,
     deleteRestaurant,
     addBranchOffice,
-    deleteBranchOffice
+    deleteBranchOffice,
+    addAffiliate,
+    deleteAffiliate
   }
 }
 

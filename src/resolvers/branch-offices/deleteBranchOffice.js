@@ -27,7 +27,10 @@ async function deleteBranchOffice (__,args,context) {
     })
   }
 
-  let restaurant = await Restaurant.findOne({_id: restaurantId,userId:context.user._id})
+  let restaurant = await Restaurant.findOne({_id: restaurantId,userId:context.user._id}).populate({ 
+    path:'branchOffices.affiliates.userId',
+    select: 'firstName lastName email'
+  })
 
   if(!restaurant) return null
 

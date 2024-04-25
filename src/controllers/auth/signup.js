@@ -75,10 +75,10 @@ const signup = async (req = request, res = response) => {
 
     // ASSIGN ROLE
 
-    const superAdmin = await User.findOne({ role: 'SUPER-ADMIN'})
+    const superAdmin = await User.findOne({ role: 'SUPER_ADMIN'})
 
     if(!superAdmin) {
-      user.role = 'SUPER-ADMIN'
+      user.role = 'SUPER_ADMIN'
     }
 
     // SAVE

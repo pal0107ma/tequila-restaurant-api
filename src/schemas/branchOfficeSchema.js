@@ -1,4 +1,5 @@
 import {Schema} from 'mongoose'
+import affiliateSchema from './affiliateSchema.js'
 
 const branchOfficeSchema = new Schema({
   name: {
@@ -30,7 +31,14 @@ const branchOfficeSchema = new Schema({
     trim: true,
     required: true
   },
-
+  country: {
+    type: String,
+    trim: true,
+    required: true
+  },
+  affiliates: {
+    type: [affiliateSchema]
+  }
 },{
   timestamps:true,
   versionKey: false

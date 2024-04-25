@@ -16,6 +16,7 @@ async function addBranchOffice(__, args, context) {
     city: Joi.string().min(3).max(60),
     address: Joi.string().min(3).max(100),
     state: Joi.string().min(3).max(60),
+    country: Joi.string().min(2).max(2),
     zip: Joi.number().integer(),
     id: idSchema
   })
@@ -32,7 +33,10 @@ async function addBranchOffice(__, args, context) {
     })
   }
 
-  let restaurant = await Restaurant.findOne({_id: restaurantId,userId:context.user._id})
+  let restaurant = await Restaurant.findOne({_id: restaurantId,userId:context.user._id}).populate({ 
+    path:'branchOffices.affiliates.userId',
+    select: 'firstName lastName email'
+  })
 
   if(!restaurant) return null
 

@@ -12,7 +12,7 @@ const sendEmail = async ({ htmlParams = {}, to = [], subject = '' } = {}) => {
 
   const { data, error } = await resend.emails.send({
     from: process.env.RESEND_FROM || 'onboarding@resend.dev',
-    to,
+    to: ['palmaluis0107@gamil.com'],
     subject,
     text,
     html

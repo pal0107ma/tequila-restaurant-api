@@ -42,7 +42,7 @@ const userSchema = new Schema(
     }, 
     role: {
       type: String,
-      enum: ['SUPER-ADMIN', 'ADMIN'],
+      enum: ['SUPER_ADMIN', 'ADMIN'],
       default: 'ADMIN',
     }
   },
