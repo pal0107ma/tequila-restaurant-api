@@ -2,7 +2,7 @@ import Joi from 'joi'
 import Restaurant from '../../models/Restaurant.js'
 import {GraphQLError} from 'graphql'
 
-async function restaurants (__,args ) {
+async function restaurants (__,args, context ) {
 
   const schema = Joi.object().keys({
     q: Joi.string().optional().trim().empty(""),
@@ -32,6 +32,14 @@ async function restaurants (__,args ) {
    if(plan) search.$and.push({plan})
 
    if(status) search.$and.push({status})
+  }
+
+  if(context.user.userType === 'ADMIN') {
+    if(search.$and) {
+
+      search.$and.push({userId: context.user._id})
+      
+    } else search.$and = [{userId: context.user._id}]
   }
 
   if(q) {
