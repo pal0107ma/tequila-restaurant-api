@@ -17,16 +17,6 @@ async function updateRestaurant (__,args, context) {
     plan: Joi.string().optional().empty(null),
     status: Joi.string().optional().empty(null),
     id: idSchema,
-    branchOffices: Joi.array().items(Joi.object().keys({
-      name: Joi.string().min(3).max(60).optional().empty(null),
-      zone: Joi.string().min(3).max(60).optional().empty(null),
-      city: Joi.string().min(3).max(60).optional().empty(null),
-      address: Joi.string().min(3).max(100).optional().empty(null),
-      state: Joi.string().min(3).max(60).optional().empty(null),
-      country: Joi.string().min(2).max(2).optional().empty(null),
-      zip: Joi.number().integer().optional().empty(null),
-      id: idSchema
-    })).optional().empty(null)
   })
 
   const {error, value: {id,branchOffices,...updateInput}} = schema.validate(args)
@@ -41,28 +31,9 @@ async function updateRestaurant (__,args, context) {
     })
   }
 
-  let restaurant = await Restaurant.findOneAndUpdate({_id:id, userId: context.user._id}, updateInput).populate({ 
-    path:'branchOffices.affiliates.userId',
-    select: 'firstName lastName email'
-  })
+  let restaurant = await Restaurant.findOneAndUpdate({_id:id, userId: context.user._id}, updateInput)
 
   if(!restaurant) return null
-
-  if(branchOffices?.length) {
-    branchOffices.forEach(({id,...input}) => {
-      const branchOffice = restaurant.branchOffices.id(id)
-
-      if(!branchOffice) return
-
-      const inputEntries = Object.entries(input)
-
-      inputEntries.forEach(([key, value]) => {
-        branchOffice[key] = value
-      });
-    });
-
-    await restaurant.save()
-  }
 
   restaurant = JSON.stringify({...restaurant._doc,...updateInput})
 

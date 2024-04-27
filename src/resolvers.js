@@ -7,12 +7,12 @@ import updateRestaurant from './resolvers/restaurants/updateRestaurant.js'
 import deleteRestaurant from './resolvers/restaurants/deleteRestaurant.js'
 import addBranchOffice from './resolvers/branch-offices/addBranchOffice.js'
 import deleteBranchOffice from './resolvers/branch-offices/deleteBranchOffice.js'
-import addAffiliate from './resolvers/affiliate/addAffiliate.js'
-import deleteAffiliate from './resolvers/affiliate/deleteAffiliate.js'
+import userAssociated from './resolvers/users/userAssociated.js'
 
 const resolvers = {
   User: {
-    id: (parent) => parent.id ?? parent._id
+    id: (parent) => parent.id ?? parent._id,
+    associated: userAssociated
   },
   Restaurant: {
     id: (parent) => parent.id ?? parent._id,
@@ -40,8 +40,6 @@ const resolvers = {
     deleteRestaurant,
     addBranchOffice,
     deleteBranchOffice,
-    addAffiliate,
-    deleteAffiliate
   }
 }
 

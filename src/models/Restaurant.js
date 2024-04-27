@@ -1,7 +1,5 @@
 import { Schema, model } from 'mongoose'
 
-import branchOfficeSchema from '../schemas/branchOfficeSchema.js'
-
 const restaurantSchema = new Schema(
   {
     name: {
@@ -18,9 +16,6 @@ const restaurantSchema = new Schema(
       type: String,
       enum: ['CANCELLED','ACTIVE','SUSPENDED'],
       required: true
-    },
-    branchOffices: {
-      type: [branchOfficeSchema]
     },
     userId: {
       type: Schema.Types.ObjectId,

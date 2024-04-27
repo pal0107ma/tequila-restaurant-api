@@ -28,10 +28,7 @@ async function restaurant (__, {id}) {
 
   // WHEN WAS NOT FOUND IN REDIS
   if(!restaurant) {
-    restaurant = await Restaurant.findById(id).populate({ 
-      path:'branchOffices.affiliates.userId',
-    select: 'firstName lastName email'
-  })
+    restaurant = await Restaurant.findById(id)
 
     // WHEN WAS NOT FOUND IN DB
     if(!restaurant) return null
