@@ -5,7 +5,7 @@ const tokenSchema = new Schema(
   {
     t: {
       type: String,
-      default: uuidv4(),
+      default: null,
       trim: true
     },
     exp: {
@@ -26,5 +26,11 @@ const tokenSchema = new Schema(
     versionKey: false
   }
 )
+
+tokenSchema.pre('save', function () {
+  if (this.t === null) {
+   this.t = uuidv4()
+  }
+})
 
 export default tokenSchema
