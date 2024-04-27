@@ -40,7 +40,12 @@ async function restaurant (__, {id}) {
 
     restaurant = JSON.stringify(restaurant)
 
-    await client.set(`restaurants:${id}`,restaurant)
+    await client.set(`restaurants:${id}`,restaurant,{
+      EX: process.env.RESTAURANT_REDIS_EXP
+        ? Number(process.env.RESTAURANT_REDIS_EXP)
+        : 60 * 60 * 24,
+      NX: true
+    })
   }
 
 

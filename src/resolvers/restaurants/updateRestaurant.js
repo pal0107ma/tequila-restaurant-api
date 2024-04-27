@@ -68,7 +68,12 @@ async function updateRestaurant (__,args, context) {
 
   await client.del(`restaurants:${id}`)
 
-  await client.set(`restaurants:${id}`, restaurant)
+  await client.set(`restaurants:${id}`, restaurant,{
+    EX: process.env.RESTAURANT_REDIS_EXP
+      ? Number(process.env.RESTAURANT_REDIS_EXP)
+      : 60 * 60 * 24,
+    NX: true
+  })
 
   return JSON.parse(restaurant)
 }
