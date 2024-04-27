@@ -15,70 +15,55 @@ import sendEmail from '../../helpers/sendEmail.js'
 import passwordSchema from '../../schemas/passwordSchema.js'
 
 const signup = async (req = request, res = response) => {
-  // VALIDATION SCHEMA
-  const schema = Joi.object({
-    username: Joi.string().alphanum().min(3).max(15)
-      .required(),
-
-    firstName: Joi.string()
-      .min(3)
-      .max(30)
-      .regex(/^[A-Z]+$/i),
-
-    lastName: Joi.string()
-      .min(3)
-      .max(30)
-      .regex(/^[A-Z]+$/i),
-
-    password: passwordSchema,
-
-    email: Joi.string().email({
-      minDomainSegments: 2,
-      tlds: { allow: ['com', 'net'] }
-    }),
-  })
-
   try {
-    // GRAB DATA FROM BODY
-    const {
-      email = '',
-      password = '',
-      firstName = '',
-      username = '',
-      lastName = '',
-    } = req.body
+
+    // VALIDATION SCHEMA
+    const schema = Joi.object({
+      firstName: Joi.string()
+        .min(3)
+        .max(30)
+        .trim()
+        .regex(/^[A-Z]+$/i).required(),
+
+      lastName: Joi.string()
+        .min(3)
+        .max(30)
+        .trim()
+        .regex(/^[A-Z]+$/i).required(),
+
+      password: passwordSchema.required(),
+
+      email: Joi.string().email({
+        minDomainSegments: 2,
+        tlds: { allow: ['com', 'net'] }
+      }).required(),
+    })
 
     // VALIDATE DATA
-    const { value, error } = schema.validate({
-      email,
-      password,
-      username,
-      lastName,
-      firstName
-    })
+    const { value: input, error } = schema.validate(req.body)
 
     if (error) return res.status(400).json(error)
 
     // VERIFY IF DOES NOT EXIST ANY USER WITH SAME EMAIL OR USERNAME
-    const doesExist = await User.findOne({ $or: [{ email }, { username }] })
+    const doesExist = await User.findOne({ email: input.email })
 
-    if (doesExist) { return res.status(409).json({ msg: 'email or username already in use' }) }
+    if (doesExist) { return res.status(409).json({ msg: 'email already in use' }) }
 
     // HASH PASSWORD BEFORE CREATE USER
-    value.password = bcrypt.hashSync(value.password, 10)
+    input.password = bcrypt.hashSync(input.password, 10)
 
     // CREATE USER
     const user = new User({
-      ...value,
+      ...input,
       tokens: [{ }]
     })
 
     // ASSIGN ROLE
 
-    const superAdmin = await User.findOne({ role: 'SUPER_ADMIN'})
+    const superAdmin = await User.findOne({ userType: 'SUPER_ADMIN'})
 
     if(!superAdmin) {
-      user.role = 'SUPER_ADMIN'
+      user.userType = 'SUPER_ADMIN'
     }
 
     // SAVE
@@ -96,7 +81,7 @@ const signup = async (req = request, res = response) => {
         LINK_TEXT: 'Click here!',
         TEXT: 'We need you confirm your account let\'s press "Click here!"'
       },
-      to: [email],
+      to: [user.email],
       subject: 'Confirm account email'
     })
 

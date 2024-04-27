@@ -1,6 +1,8 @@
 import { Schema, model } from 'mongoose'
 
 import tokenSchema from '../schemas/tokenSchema.js'
+import branchAccessSchema from '../schemas/branchAccessSchema.js'
+import userSubscriptionSchema from '../schemas/userSubscriptionSchema.js'
 
 const userSchema = new Schema(
   {
@@ -15,13 +17,6 @@ const userSchema = new Schema(
       type: String,
       required: true,
       trim: true
-    },
-    username: {
-      type: String,
-      required: true,
-      lowercase: true,
-      trim: true,
-      unique: true
     },
     accountConfirmed: {
       type: Boolean,
@@ -40,11 +35,22 @@ const userSchema = new Schema(
       trim: true,
       required: true
     }, 
-    role: {
+    userType: {
       type: String,
-      enum: ['SUPER_ADMIN', 'ADMIN'],
+      enum: ['SUPER_ADMIN', 'ADMIN', 'EMPLOYER'],
       default: 'ADMIN',
-    }
+    },
+    subscriptions: {
+      type: [userSubscriptionSchema]
+    },
+    allowedBranches: {
+      type: [branchAccessSchema]
+    },
+    phoneNr: {
+      type: String,
+      trim: true,
+      default: null
+    },
   },
   {
     timestamps: true,

@@ -9,7 +9,7 @@ import passwordSchema from '../../schemas/passwordSchema.js'
 
 async function updateUser (__, args, context) {
   const schema = Joi.object({
-    username: Joi.string().alphanum().min(3).max(15).optional().empty(null).trim(),
+    phoneNr: Joi.string().alphanum().min(3).max(15).optional().empty(null),
 
     firstName: Joi.string()
       .min(3)
@@ -39,7 +39,7 @@ async function updateUser (__, args, context) {
     password: passwordSchema
   })
 
-  const { error, value: { email, username, security, password, ...update } } = schema.validate(args)
+  const { error, value: { email, security, password, ...update } } = schema.validate(args)
 
   if (error) {
     throw new GraphQLError(error.message, {
@@ -63,22 +63,6 @@ async function updateUser (__, args, context) {
         }
       })
     }
-  }
-
-  // VERIFY IF USERNAME ALREADY IN USE
-  if (username && username !== context.user.username) {
-    const user = await User.findOne({ username })
-
-    if (user) {
-      throw new GraphQLError('username already in use', {
-        extensions: {
-          code: 'BAD_USER_INPUT',
-          http: { status: 409 }
-        }
-      })
-    }
-    // NOT PROBLEM
-    update.username = username
   }
 
   // FIND USER AND UPDATE

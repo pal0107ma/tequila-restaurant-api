@@ -18,9 +18,9 @@ type Mutation {
     password: String
     "security requires the user password when user changes his password or email"
     security: String
-    username: String
     firstName: String
     lastName: String
+    phoneNr: String
   ): User
 
   addRestaurant(
@@ -154,23 +154,83 @@ enum restaurantStatusEnum {
 type User {
   id: ID
   email: String
-  username: String
-  accountConfirmed: Boolean
   firstName: String
   lastName: String
   createdAt: String
   updatedAt: String
-  role: userRoleEnum
+  userType: userTypeEnum
+  "associated restaurants"
+  associated: Boolean
+  allowedBranches: [BrachAccess]
+  subscriptions: [UserSubscription]
+  phoneNr: String
 }
 
-enum branchOfficeAffiliateRoleEnum {
+type BrachAccess {
+  branchId: ID
+  branchRole: [branchRoleEnum]
+}
+
+type UserSubscription {
+  cycle: subscriptionCycleEnum
+  subscription: Subscription
+  # paymentDetails: PaymentDetails
+  datePurchased: String
+}
+
+type Subscription {
+  subscriptionPrice: Int
+  subscriptionDescription: String
+  subscriptionName: String
+  activeModules: ActiveModules
+  modulesLimit: ModulesLimit
+}
+
+type ActiveModules {
+  providers: Boolean
+  buy: Boolean
+  expenses: Boolean
+  payroll: Boolean
+  recipes: Boolean
+  reports: Boolean
+}
+
+type ModulesLimit {
+  providers: Int
+  buy: Int
+  expenses: Int
+  payroll: Int
+  recipes: Int
+  reports: Int
+}
+
+
+# type PaymentDetails {
+#   paymentMethod: paymentMethodEnum  
+#   txId: String
+#   timestamp: String
+# }
+
+enum paymentMethodEnum {
+  PAYPAL
+  STRIPE
+}
+
+enum subscriptionCycleEnum {
+  YEARLY
+  MONTHLY
+  QUARTERLY
+}
+
+enum branchRoleEnum {
   STORER
   HR
   COUNTER
   CHEF
 }
 
-enum userRoleEnum {
+enum userTypeEnum {
   SUPER_ADMIN
   ADMIN
+  EMPLOYER
 }
