@@ -5,6 +5,7 @@ import { GraphQLError } from 'graphql'
 
 // MODELS
 import Restaurant from '../../models/Restaurant.js'
+import BranchOffice from '../../models/BranchOffice.js'
 
 async function addRestaurant (__,args, context) {
 
@@ -12,10 +13,19 @@ async function addRestaurant (__,args, context) {
   const schema = Joi.object().keys({
     name: Joi.string().min(3).max(60),
     plan: Joi.string(),
-    status: Joi.string()
+    status: Joi.string(),
+    principalBranchOffice: Joi.object().keys({
+      name: Joi.string().min(3).max(60),
+      zone: Joi.string().min(3).max(60),
+      city: Joi.string().min(3).max(60),
+      address: Joi.string().min(3).max(100),
+      state: Joi.string().min(3).max(60),
+      country: Joi.string().min(2).max(2),
+      zip: Joi.number().integer(),
+    })
   })
 
-  const {error, value} = schema.validate(args)
+  const {error, value: { principalBranchOffice, ...value }} = schema.validate(args)
 
   if (error) {
     throw new GraphQLError(error.message, {
@@ -34,6 +44,14 @@ async function addRestaurant (__,args, context) {
   // SAVE RESTAURANT
 
   await restaurant.save()
+
+  // DEFINE PRINCIPAL BRANCH OFFICE
+
+  const branchOffice = new BranchOffice({ ...principalBranchOffice, principal: true, restaurantId: restaurant._id })
+
+  // SAVE BRANCH OFFICE
+
+  await branchOffice.save()
 
   // TO STRING
 

@@ -8,6 +8,9 @@ import deleteRestaurant from './resolvers/restaurants/deleteRestaurant.js'
 import addBranchOffice from './resolvers/branch-offices/addBranchOffice.js'
 import deleteBranchOffice from './resolvers/branch-offices/deleteBranchOffice.js'
 import userAssociated from './resolvers/users/userAssociated.js'
+import branchOffice from './resolvers/branch-offices/branchOffice.js'
+import branchOffices from './resolvers/branch-offices/branchOffices.js'
+import updateBranchOffice from './resolvers/branch-offices/updateBranchOffice.js'
 
 const resolvers = {
   User: {
@@ -16,7 +19,6 @@ const resolvers = {
   },
   Restaurant: {
     id: (parent) => parent.id ?? parent._id,
-    branchOffice: (parent,{id}) => parent.branchOffices.find(({_id})=> _id === id) 
   },
   BranchOffice: {
     id: (parent) => parent.id ?? parent._id
@@ -31,7 +33,9 @@ const resolvers = {
   Query: {
     userProfile,
     restaurant,
-    restaurants
+    restaurants,
+    branchOffices,
+    branchOffice
   },
   Mutation: {
     updateUser,
@@ -40,6 +44,7 @@ const resolvers = {
     deleteRestaurant,
     addBranchOffice,
     deleteBranchOffice,
+    updateBranchOffice
   }
 }
 

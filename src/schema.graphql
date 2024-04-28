@@ -10,6 +10,16 @@ type Query {
     offset: Int
     count: Int
   ): [Restaurant]
+
+  branchOffice(id: ID!): BranchOffice
+
+  branchOffices(
+    restaurantId: ID!
+    q: String
+    principal: Boolean
+    offset: Int
+    count: Int
+  ): [BranchOffice]
 }
 
 type Mutation {
@@ -27,6 +37,7 @@ type Mutation {
     name: String!
     plan: restaurantPlanEnum!
     status: restaurantStatusEnum!
+    principalBranchOffice: addRestaurantBrachInput!
   ): Restaurant
 
   updateRestaurant(
@@ -57,6 +68,41 @@ type Mutation {
   ): BranchOffice
 
   deleteBranchOffice(id: ID!): BranchOffice
+
+  updateBranchOffice(
+    id: ID!
+    "min length 3 max length 60"
+    name: String
+    "min length 3 max length 60"
+    zone: String
+    "min length 3 max length 60"
+    city: String
+    "min length 3 max length 100"
+    address: String
+    "min length 3 max length 60"
+    state: String
+    "min length 2 max length 2"
+    country: String
+
+    zip: Int
+  ): BranchOffice
+}
+
+input addRestaurantBrachInput {
+  "min length 3 max length 60"
+  name: String!
+  "min length 3 max length 60"
+  zone: String!
+  "min length 3 max length 60"
+  city: String!
+  "min length 3 max length 100"
+  address: String!
+  "min length 3 max length 60"
+  state: String!
+  "min length 2 max length 2"
+  country: String!
+
+  zip: Int!
 }
 
 type Restaurant {
@@ -73,13 +119,16 @@ type Restaurant {
 }
 
 type BranchOffice {
+  restaurantId: ID
   id: ID
   name: String
   zone: String
   city: String
   address: String
   state: String
+  country: String
   zip: Int
+  principal: Boolean
   updatedAt: String
   createdAt: String
 }

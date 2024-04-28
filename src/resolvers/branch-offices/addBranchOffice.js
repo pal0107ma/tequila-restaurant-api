@@ -4,6 +4,7 @@ import client  from '../../db/redis.client.js'
 
 // MODELS
 import Restaurant from '../../models/Restaurant.js'
+import BranchOffice from '../../models/BranchOffice.js'
 
 // JOI SCHEMAS
 import idSchema from '../../schemas/idSchema.js'
@@ -18,10 +19,10 @@ async function addBranchOffice(__, args, context) {
     state: Joi.string().min(3).max(60),
     country: Joi.string().min(2).max(2),
     zip: Joi.number().integer(),
-    id: idSchema
+    restaurantId: idSchema
   })
 
-  const {error, value:{id: restaurantId,...input }} = schema.validate(args)
+  const {error, value:{ restaurantId, ...userInput }} = schema.validate(args)
 
   if (error) {
     throw new GraphQLError(error.message, {
@@ -33,24 +34,27 @@ async function addBranchOffice(__, args, context) {
     })
   }
 
-  let restaurant = await Restaurant.findOne({_id: restaurantId,userId:context.user._id}).populate({ 
-    path:'branchOffices.affiliates.userId',
-    select: 'firstName lastName email'
+  let restaurant = await Restaurant.findOne({
+    _id: restaurantId,
+    userId: context.user._id
   })
 
-  if(!restaurant) return null
+  if (!restaurant) {
+    throw new GraphQLError('restaurant was not found', {
+      extensions: {
+        code: 'BAD_USER_INPUT',
+        http: { status: 404 }
+      }
+    })
+  }
 
-  restaurant.branchOffices.push(input)
+  let branchOffice = new BranchOffice({ restaurantId, ...userInput })
 
-  await restaurant.save()
+  await branchOffice.save()
 
-  restaurant = JSON.stringify(restaurant)
+  branchOffice = JSON.stringify(branchOffice)
 
-  await client.del(`restaurants:${restaurantId}`)
-
-  await client.set(`restaurants:${restaurantId}`, restaurant)
-
-  return JSON.parse(restaurant)
+  return JSON.parse(branchOffice)
 }
 
 export default addBranchOffice

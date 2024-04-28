@@ -3,19 +3,15 @@ import { GraphQLError } from 'graphql'
 import client  from '../../db/redis.client.js'
 
 // MODELS
+import BranchOffice from '../../models/BranchOffice.js'
 import Restaurant from '../../models/Restaurant.js'
 
 // JOI SCHEMAS
 import idSchema from '../../schemas/idSchema.js'
 
-async function deleteBranchOffice (__,args,context) {
+async function deleteBranchOffice (__,{ id },context) {
 
-  const schema = Joi.object().keys({
-    id: idSchema,
-    restaurantId: idSchema
-  })
-
-  const {error, value:{id,restaurantId}} = schema.validate(args)
+  const { error } = idSchema.validate(id)
 
   if (error) {
     throw new GraphQLError(error.message, {
@@ -27,24 +23,21 @@ async function deleteBranchOffice (__,args,context) {
     })
   }
 
-  let restaurant = await Restaurant.findOne({_id: restaurantId,userId:context.user._id}).populate({ 
-    path:'branchOffices.affiliates.userId',
-    select: 'firstName lastName email'
+  const restaurants = await Restaurant.find({ userId: context.user._id })
+
+  const branchOffice = await BranchOffice.findOneAndDelete({
+    _id: id, 
+    restaurantId: {
+      $in: restaurants.map(({_id}) => _id)
+    },
+    principal: false
   })
 
-  if(!restaurant) return null
+  if(!branchOffice) return null
 
-  restaurant.branchOffices.pull(id)
+  await client.del(`branch_offices:${id}`)
 
-  await restaurant.save()
-
-  restaurant = JSON.stringify(restaurant)
-
-  await client.del(`restaurants:${restaurantId}`)
-
-  await client.set(`restaurants:${restaurantId}`, restaurant)
-
-  return JSON.parse(restaurant)
+  return JSON.parse(JSON.stringify(branchOffice))
 }
 
 export default deleteBranchOffice
