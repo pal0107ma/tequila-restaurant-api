@@ -102,8 +102,14 @@ const signin = async (req = request, res = response) => {
     )
 
     // SEND TOKEN
-    res.json({ msg: 'signin success', jwt, user: (({password, tokens, accountConfirmed,_id,...user})=>{
-      return {id: _id,...user} 
+    res.json({ msg: 'signin success', jwt, user: (({ password, tokens, accountConfirmed,allowedBranches,_id:id, ...user }) => {
+      return { 
+        id,
+        allowedBranches: allowedBranches.map(({ _doc:{_id:id, ...rest} }) => {
+          return { id,...rest }
+        }),
+        ...user
+      }
     })(user._doc) })
   } catch (error) {
     internalErrorServer(error, res)

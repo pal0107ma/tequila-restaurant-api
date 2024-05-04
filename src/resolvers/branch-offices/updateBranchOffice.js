@@ -36,7 +36,9 @@ async function updateBranchOffice (__, args, context) {
     restaurantId: {
       $in: restaurants.map(({_id}) => _id)
     }
-  }, input)
+  }, input).populate({
+    path: 'users', select: 'allowedBranches'
+  })
 
   if(!branchOffice) return null
 

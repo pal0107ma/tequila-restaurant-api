@@ -47,7 +47,9 @@ async function branchOffices(__,args) {
     ]    
   }
 
-  let result = await BranchOffice.find(search).skip(offset).limit(count).sort({createdAt: 1})
+  let result = await BranchOffice.find(search).skip(offset).limit(count).sort({createdAt: 1}).populate({
+    path: 'users', select: 'allowedBranches'
+  })
 
   result = JSON.stringify(result)
 

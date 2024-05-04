@@ -54,4 +54,15 @@ const branchOfficeSchema = new Schema({
   versionKey: false
 })
 
+
+branchOfficeSchema.set("toJSON", { virtuals: true })
+
+branchOfficeSchema.set("toObject", { virtuals: true })
+
+branchOfficeSchema.virtual("users", {
+  ref: "User",
+  localField: "_id",
+  foreignField: "allowedBranches.branchId",
+});
+
 export default model('branch_office',branchOfficeSchema)

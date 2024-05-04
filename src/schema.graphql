@@ -86,6 +86,19 @@ type Mutation {
 
     zip: Int
   ): BranchOffice
+
+  addBranchInvite (
+    branchId: ID!
+    userEmail: String!
+    branchRole: [branchRoleEnum!]!
+  ): BranchOffice
+
+  deleteBranchAccess(id: ID!): User
+
+  updateBranchAccess(
+    id: ID!
+    branchRole: [branchRoleEnum!]
+  ): User
 }
 
 input addRestaurantBrachInput {
@@ -131,6 +144,18 @@ type BranchOffice {
   principal: Boolean
   updatedAt: String
   createdAt: String
+  users: [BranchOfficeUser]
+  user(
+    "branch access id"
+    id: ID!
+    ): BranchOfficeUser
+} 
+
+type BranchOfficeUser {
+  userId: ID
+  "branch access id"
+  id: ID
+  branchRole: [branchRoleEnum]
 }
 
 enum restaurantPlanEnum {
@@ -162,11 +187,13 @@ type User {
 }
 
 type BrachAccess {
+  id: ID
   branchId: ID
   branchRole: [branchRoleEnum]
 }
 
 type UserSubscription {
+  id: ID
   cycle: subscriptionCycleEnum
   subscription: Subscription
   # paymentDetails: PaymentDetails
@@ -174,6 +201,7 @@ type UserSubscription {
 }
 
 type Subscription {
+  id: ID
   subscriptionPrice: Int
   subscriptionDescription: String
   subscriptionName: String

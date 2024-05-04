@@ -6,7 +6,7 @@ import { response, request } from 'express'
 
 // MODEL
 import User from '../../models/User.js'
-
+import BranchInvite from '../../models/BranchInvite.js'
 // HELPERS
 import internalErrorServer from '../../helpers/internalErrorServer.js'
 import sendEmail from '../../helpers/sendEmail.js'
@@ -66,6 +66,14 @@ const signup = async (req = request, res = response) => {
       user.userType = 'SUPER_ADMIN'
     }
 
+    // BRANCH INVITES
+
+    const branchInvites = await BranchInvite.find({userEmail: user.email})
+
+    user.allowedBranches = branchInvites
+
+    await BranchInvite.deleteMany({userEmail: user.email})
+
     // SAVE
 
     await user.save()
@@ -88,8 +96,14 @@ const signup = async (req = request, res = response) => {
     // SEND USER INFO
     res.status(201).json({
       msg: 'signup success',
-      user:(({ password, tokens, accountConfirmed,_id, ...user }) => {
-        return{id:_id,...user}
+      user:(({ password, tokens, accountConfirmed,allowedBranches,_id:id, ...user }) => {
+        return { 
+          id,
+          allowedBranches: allowedBranches.map(({ _doc:{_id:id, ...rest} }) => {
+            return { id,...rest }
+          }),
+          ...user
+        }
       })(user._doc)
     })
   } catch (error) {

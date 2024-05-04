@@ -3,6 +3,7 @@ import express from 'express'
 
 import cors from 'cors'
 
+import branchInvites from './routers/branchInvites.js'
 import auth from './routers/auth.js'
 import graphql from './routers/graphql.js'
 import verifyJWT from './middlewares/auth/verifyJWT.js'
@@ -26,6 +27,8 @@ app.use(logger('dev'))
 // DEFINE ROUTES
 
 app.use('/auth', auth)
+
+app.use('/branch-invites', branchInvites)
 
 app.use('/graphql', verifyJWT, graphql)
 

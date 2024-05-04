@@ -2,6 +2,7 @@
 
 import client from "../../db/redis.client.js"
 import BranchOffice from "../../models/BranchOffice.js"
+import User from "../../models/User.js"
 import idSchema from "../../schemas/idSchema.js"
 
 async function branchOffice (__, { id }, context) {
@@ -22,7 +23,9 @@ async function branchOffice (__, { id }, context) {
 
   if(!branchOffice) {
 
-    branchOffice = await BranchOffice.findById(id)
+    branchOffice = await BranchOffice.findById(id).populate({
+      path: 'users', select: 'allowedBranches'
+    })
 
     if(!branchOffice) return null
 
