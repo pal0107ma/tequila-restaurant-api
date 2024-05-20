@@ -20,6 +20,17 @@ type Query {
     offset: Int
     count: Int
   ): [BranchOffice]
+
+  products(
+    branchId: ID!
+    q: String
+    offset: Int
+    count: Int
+  ): [Product]
+
+  product(
+    id: ID!
+  ): Product
 }
 
 type Mutation {
@@ -99,6 +110,26 @@ type Mutation {
     id: ID!
     branchRole: [branchRoleEnum!]
   ): User
+
+  addProduct(
+    name: String!
+    description: String!
+    category: String!
+    branchId: ID!
+    countableAmount: Int!
+    measureUnits: productMeasureUnit
+    contentAmountWeight: Int!
+  ): Product
+
+  updateProduct(
+    name: String
+    description: String
+    category: String
+    countableAmount: Int
+    measureUnits: productMeasureUnit
+    contentAmountWeight: Int
+    id: ID!
+  ): Product
 }
 
 input addRestaurantBrachInput {
@@ -226,6 +257,25 @@ type ModulesLimit {
   recipes: Int
   reports: Int
 }
+
+type Product {
+  id: ID
+  branchId: ID
+  name: String
+  description: String
+  category: String
+  countableAmount: Int
+  measureUnits: productMeasureUnit
+  contentAmountWeight: Int
+  createdAt: String
+  updatedAt: String
+}
+
+enum productMeasureUnit{
+  OZ
+  LIB
+}
+
 
 
 # type PaymentDetails {

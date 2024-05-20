@@ -16,6 +16,10 @@ import deleteBranchAccess from './resolvers/branch-accesses/deleteBranchAccess.j
 import updateBranchAccess from './resolvers/branch-accesses/updateBranchAccess.js'
 import branchOfficeUsers from './resolvers/branch-offices/branchOfficeUsers.js'
 import branchOfficeUser from './resolvers/branch-offices/branchOfficeUser.js'
+import addProduct from './resolvers/products/addProduct.js'
+import products from './resolvers/products/products.js'
+import product from './resolvers/products/product.js'
+import updateProduct from './resolvers/products/updateProduct.js'
 
 const resolvers = {
   User: {
@@ -46,12 +50,17 @@ const resolvers = {
   Subscription: {
     id: (parent) => parent.id ?? parent._id
   },
+  Product: {
+    id: (parent) => parent.id ?? parent._id
+  },
   Query: {
     userProfile,
     restaurant,
     restaurants,
     branchOffices,
-    branchOffice
+    branchOffice, 
+    products, 
+    product
   },
   Mutation: {
     updateUser,
@@ -63,7 +72,9 @@ const resolvers = {
     updateBranchOffice,
     addBranchInvite,
     deleteBranchAccess,
-    updateBranchAccess
+    updateBranchAccess,
+    addProduct,
+    updateProduct
   }
 }
 
