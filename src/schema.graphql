@@ -1,5 +1,10 @@
 type Query {
+  # USER PROFILE
   userProfile(id: ID): User
+
+  #######################################
+  # RESTAURANT QUERIES
+  #######################################
 
   restaurant(id: ID!): Restaurant
 
@@ -11,6 +16,10 @@ type Query {
     count: Int
   ): [Restaurant]
 
+  #######################################
+  # BRANCH OFFICES QUERIES
+  #######################################
+
   branchOffice(id: ID!): BranchOffice
 
   branchOffices(
@@ -21,16 +30,45 @@ type Query {
     count: Int
   ): [BranchOffice]
 
+  #######################################
+  # PRODUCT QUERIES
+  #######################################
+
   products(
     branchId: ID!
     q: String
     offset: Int
     count: Int
+    category: ID
   ): [Product]
 
   product(
     id: ID!
   ): Product
+
+  #######################################
+  # INVENTORY QUERIES
+  #######################################
+
+  inventoryIn(
+    id: ID!
+  ): InventoryIn
+
+  inventory(
+    branchId: ID!
+    category: ID
+    q: String
+    offset: Int
+    count: Int
+  ): [InventoryIn]  
+
+  #######################################
+  # PRODUCT CATEGORIES QUERIES
+  #######################################
+
+  productCategories(
+    branchId: ID!
+  ): [ProductCategory]
 }
 
 type Mutation {
@@ -44,8 +82,13 @@ type Mutation {
     phoneNr: String
   ): User
 
+  #######################################
+  # RESTAURANT MUTATIONS
+  #######################################
+
   addRestaurant(
     name: String!
+    "min length 3 max length 60"
     plan: restaurantPlanEnum!
     status: restaurantStatusEnum!
     principalBranchOffice: addRestaurantBrachInput!
@@ -58,7 +101,11 @@ type Mutation {
     id: ID!
   ): Restaurant
 
-  deleteRestaurant(id: ID!): Restaurant
+  # deleteRestaurant(id: ID!): Restaurant
+
+  #######################################
+  # BRANCH OFFICES MUTATIONS
+  #######################################
 
   addBranchOffice(
     restaurantId: ID!
@@ -78,7 +125,7 @@ type Mutation {
     zip: Int!
   ): BranchOffice
 
-  deleteBranchOffice(id: ID!): BranchOffice
+  # deleteBranchOffice(id: ID!): BranchOffice
 
   updateBranchOffice(
     id: ID!
@@ -98,11 +145,19 @@ type Mutation {
     zip: Int
   ): BranchOffice
 
+  #######################################
+  # BRANCH INVITE MUTATIONS
+  #######################################
+
   addBranchInvite (
     branchId: ID!
     userEmail: String!
     branchRole: [branchRoleEnum!]!
   ): BranchOffice
+
+  #######################################
+  # BRANCH ACCESS MUTATIONS
+  #######################################
 
   deleteBranchAccess(id: ID!): User
 
@@ -111,25 +166,62 @@ type Mutation {
     branchRole: [branchRoleEnum!]
   ): User
 
+  #######################################
+  # PRODUCTS MUTATIONS
+  #######################################
+
   addProduct(
     name: String!
+    "min length 3 max length 50"
     description: String!
-    category: String!
+    "min length 3 max length 100"
+    category: ID!
+    "must be a valid mongo id"
     branchId: ID!
+    "must be a valid mongo id"
     countableAmount: Int!
-    measureUnits: productMeasureUnit
+    measureUnit: measureUnitsEnum
     contentAmountWeight: Int!
   ): Product
 
   updateProduct(
     name: String
     description: String
-    category: String
+    category: ID
     countableAmount: Int
-    measureUnits: productMeasureUnit
+    measureUnit: measureUnitsEnum
     contentAmountWeight: Int
     id: ID!
   ): Product
+
+  deleteProduct(
+    id: ID!
+  ): Product
+
+  #######################################
+  # INVENTORY MUTATIONS
+  #######################################
+
+  addInventoryIn(
+    productId: ID!
+    quantity: Int!
+    purchasePrice: Float!
+  ): InventoryIn
+
+  deleteInventoryIn(
+    id: ID!
+  ): InventoryIn
+
+  #######################################
+  # PRODUCT CATEGORY MUTATIONS
+  #######################################
+
+  addProductCategory(
+    name: String!
+    branchId: ID!
+  ): ProductCategory
+
+  deleteProductCategory(id: ID!): ProductCategory
 }
 
 input addRestaurantBrachInput {
@@ -149,18 +241,44 @@ input addRestaurantBrachInput {
   zip: Int!
 }
 
+#######################################
+# PRODUCT CATEGORY
+#######################################
+
+type ProductCategory {
+  id: ID
+  name: String
+}
+
+#######################################
+# RESTAURANT
+#######################################
+
 type Restaurant {
   id: ID
-  "min length 3 max length 60"
   name: String
-  "in SILVER, DIAMOND, GOLD"
-  plan: String
-  "in ACTIVE, CANCELLED, SUSPENDED"
-  status: String
+  plan: restaurantPlanEnum
+  status: restaurantStatusEnum
   userId: String
   updatedAt: String
   createdAt: String
 }
+
+enum restaurantPlanEnum {
+  STARTER
+  SILVER
+  DIAMOND
+  GOLD
+}
+
+enum restaurantStatusEnum {
+  ACTIVE
+  CANCELLED
+  SUSPENDED
+}
+#######################################
+# BRANCH OFFICE
+#######################################
 
 type BranchOffice {
   restaurantId: ID
@@ -187,20 +305,18 @@ type BranchOfficeUser {
   "branch access id"
   id: ID
   branchRole: [branchRoleEnum]
+  categoriesId: [ID]
 }
 
-enum restaurantPlanEnum {
-  STARTER
-  SILVER
-  DIAMOND
-  GOLD
+enum branchRoleEnum {
+  STORER
+  HR
+  CHEF
 }
 
-enum restaurantStatusEnum {
-  ACTIVE
-  CANCELLED
-  SUSPENDED
-}
+#######################################
+# USER
+#######################################
 
 type User {
   id: ID
@@ -225,28 +341,32 @@ type BrachAccess {
 
 type UserSubscription {
   id: ID
-  cycle: subscriptionCycleEnum
   subscription: Subscription
   # paymentDetails: PaymentDetails
   datePurchased: String
 }
+
+enum userTypeEnum {
+  SUPER_ADMIN
+  ADMIN
+  EMPLOYER
+}
+
+enum paymentMethodEnum {
+  PAYPAL
+  STRIPE
+}
+
+#######################################
+# SUBSCRIPTION
+#######################################
 
 type Subscription {
   id: ID
   subscriptionPrice: Int
   subscriptionDescription: String
   subscriptionName: String
-  activeModules: ActiveModules
   modulesLimit: ModulesLimit
-}
-
-type ActiveModules {
-  providers: Boolean
-  buy: Boolean
-  expenses: Boolean
-  payroll: Boolean
-  recipes: Boolean
-  reports: Boolean
 }
 
 type ModulesLimit {
@@ -258,6 +378,10 @@ type ModulesLimit {
   reports: Int
 }
 
+#######################################
+# PRODUCT
+#######################################
+
 type Product {
   id: ID
   branchId: ID
@@ -265,45 +389,31 @@ type Product {
   description: String
   category: String
   countableAmount: Int
-  measureUnits: productMeasureUnit
+  measureUnit: measureUnitsEnum
   contentAmountWeight: Int
   createdAt: String
   updatedAt: String
 }
 
-enum productMeasureUnit{
+enum measureUnitsEnum {
   OZ
   LIB
 }
 
+#######################################
+# INVENTORY IN
+#######################################
 
-
-# type PaymentDetails {
-#   paymentMethod: paymentMethodEnum  
-#   txId: String
-#   timestamp: String
-# }
-
-enum paymentMethodEnum {
-  PAYPAL
-  STRIPE
-}
-
-enum subscriptionCycleEnum {
-  YEARLY
-  MONTHLY
-  QUARTERLY
-}
-
-enum branchRoleEnum {
-  STORER
-  HR
-  COUNTER
-  CHEF
-}
-
-enum userTypeEnum {
-  SUPER_ADMIN
-  ADMIN
-  EMPLOYER
+type InventoryIn {
+  id: ID
+  branchId: ID
+  purchasePrice: Float
+  quantity: Int
+  total: Int
+  available: Int
+  unitCost: Float
+  productId: ID
+  measureUnit: measureUnitsEnum
+  createdAt: String
+  updatedAt: String
 }

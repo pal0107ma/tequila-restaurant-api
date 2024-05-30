@@ -20,6 +20,14 @@ import addProduct from './resolvers/products/addProduct.js'
 import products from './resolvers/products/products.js'
 import product from './resolvers/products/product.js'
 import updateProduct from './resolvers/products/updateProduct.js'
+import addInventoryIn from './resolvers/inventory-in/addInventoryIn.js'
+import addProductCategory from './resolvers/product-categories/addProductCategory.js'
+import deleteProductCategory from './resolvers/product-categories/deleteProductCategory.js'
+import productCategories from './resolvers/product-categories/productCategories.js'
+import deleteProduct from './resolvers/products/deleteProduct.js'
+import inventory from './resolvers/inventory-in/inventory.js'
+import inventoryIn from './resolvers/inventory-in/inventoryIn.js'
+import deleteInventoryIn from './resolvers/inventory-in/deleteInventoryIn.js'
 
 const resolvers = {
   User: {
@@ -53,6 +61,15 @@ const resolvers = {
   Product: {
     id: (parent) => parent.id ?? parent._id
   },
+  InventoryIn: {
+    id: (parent) => parent.id ?? parent._id,
+    productId: (parent)=> parent.productId._id ?? parent.productId,
+    measureUnit: (parent)=> parent.productId.measureUnit ,
+    available: ({total, outs}) => total - outs.reduce((acc, n) =>  acc + n, 0)
+  },
+  ProductCategory: {
+    id: (parent) => parent.id ?? parent._id
+  },
   Query: {
     userProfile,
     restaurant,
@@ -60,7 +77,10 @@ const resolvers = {
     branchOffices,
     branchOffice, 
     products, 
-    product
+    product,
+    productCategories, 
+    inventory, 
+    inventoryIn
   },
   Mutation: {
     updateUser,
@@ -74,7 +94,12 @@ const resolvers = {
     deleteBranchAccess,
     updateBranchAccess,
     addProduct,
-    updateProduct
+    updateProduct, 
+    addInventoryIn,
+    addProductCategory,
+    deleteProductCategory, 
+    deleteProduct,
+    deleteInventoryIn,
   }
 }
 

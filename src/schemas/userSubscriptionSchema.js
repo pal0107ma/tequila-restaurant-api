@@ -6,13 +6,9 @@ const userSubscriptionSchema = new Schema({
     type: Schema.Types.ObjectId,
     ref: 'subscription'
   },
-	cycle: {
-		type: String,
-		enum: ['YEARLY','MONTHLY','QUARTERLY']
-	},
-	paymentDetails: {
-		type: paymentDetailsSchema
-	}
+	paymentDetails:{
+		type: [paymentDetailsSchema]
+	} 
 },{
   timestamps: {
     createdAt: 'datePurchased',

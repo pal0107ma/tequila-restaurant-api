@@ -4,7 +4,7 @@ const productSchema = new Schema({
   branchId: {
     type: Schema.Types.ObjectId,
     required: true,
-    ref: 'User'
+    ref: 'branch_office'
   },
   name: {
     type: String,
@@ -17,15 +17,15 @@ const productSchema = new Schema({
     trim:true
   },
   category: {
-    type: String,
+    type: Schema.Types.ObjectId,
     required:true,
-    trim:true
+    ref: 'product_category'
   },
   countableAmount: {
     type: Number,
     required: true
   },
-  measureUnits: {
+  measureUnit: {
     type: String,
     default: null,
     enum:['OZ','LIB']

@@ -1,7 +1,6 @@
 
 
 import { Schema, model } from 'mongoose'
-import activeModulesSchema from '../schemas/activeModulesSchema.js'
 import modulesLimitSchema from '../schemas/modulesLimitSchema.js'
 
 const subscriptionSchema = new Schema({
@@ -17,8 +16,9 @@ const subscriptionSchema = new Schema({
     type: String,
     required: true
   },
-  activeModules: {
-    type: activeModulesSchema
+  active: {
+    type: Boolean,
+    default: true
   },
   modulesLimit: {
     type: modulesLimitSchema

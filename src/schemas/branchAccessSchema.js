@@ -7,8 +7,12 @@ const branchAccessSchema = new Schema({
   },
   branchRole: {
     type: [String],
-    enum: ['CHEF','HR','STORER','COUNTER']
+    enum: ['CHEF','HR','STORER']
   },
+  categoriesId: {
+    type: [Schema.Types.ObjectId],
+    ref: 'product_category'
+  }
 })
 
 branchAccessSchema.pre('save', function () {

@@ -4,19 +4,25 @@ import BranchOffice from "../../models/BranchOffice.js"
 import Joi from "joi"
 import idSchema from "../../schemas/idSchema.js"
 import { GraphQLError } from "graphql"
+import InventoryIn from "../../models/InventoryIn.js"
 
-async function products(__,args, context) {
+async function inventory(__, args, context) {
 
-  // VALIDATE ARGS
   const schema = Joi.object().keys({
-    branchId: idSchema,
     category: idSchema.optional().empty(null),
+    branchId: idSchema,
     q: Joi.string().trim().optional().empty(""),
     count: Joi.number().integer().max(100).min(5).default(5),
-    offset: Joi.number().integer().min(0).default(0),
+    offset: Joi.number().integer().min(0).empty(null),
   })
 
-  const {error, value:{branchId,category,q,offset, count}} = schema.validate(args)
+  const {error, value:{
+    branchId,
+    q,
+    category,
+    offset, 
+    count, 
+  }} = schema.validate(args)
 
   if (error) {
     throw new GraphQLError(error.message, {
@@ -26,25 +32,6 @@ async function products(__,args, context) {
         http: { status: 400 }
       }
     })
-  }
-
-  // SEARCH CONFIG
-  const search = {
-    branchId
-  }
-
-  if(category) {
-    search.$and = [{category}]
-  }
-
-  // ADD QUERY
-  if(q) {
-    const regexp = new RegExp(q,'i')
-
-    search.$or = [ 
-      { name: regexp },
-      { description: regexp },
-    ]    
   }
 
   // VERIFY ACCESS
@@ -63,16 +50,49 @@ async function products(__,args, context) {
       }
     })
   }
-  
-  // RETURN RESULTS
-  let results = await Product.find(search).skip(offset).limit(count).sort({createdAt: 1})
 
-  results = JSON.stringify(results)
+  // SEARCH CONFIG
+  const search = {
+   $and: [{branchId}]
+  }
 
-  results = JSON.parse(results)
+  if(q) {
 
-  return results
-  
+    const regex = new RegExp(q,'i')
+
+    search.$or = [
+      {name: regex},
+      {description: regex},
+    ]
+
+  }
+
+  if(category) {
+    search.$and.push({ category })
+  }
+
+  let products 
+
+  if(q || category) {
+    products = await Product.find(search)
+  }
+
+  let result = await InventoryIn.find(
+    products ?
+        { 
+          productId : {
+            $in: products.map((_id)=> _id)
+          }
+        }
+      : search
+  ).limit(count).skip(offset).sort({createdAt: -1}).populate([{path:'productId',select:'measureUnit'}])
+
+  result = JSON.stringify(result)
+
+  result = JSON.parse(result)
+
+  return result
+
 }
 
-export default products
+export default inventory

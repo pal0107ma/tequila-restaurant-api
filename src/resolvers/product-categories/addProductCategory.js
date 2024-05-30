@@ -1,26 +1,20 @@
-import Product from "../../models/Product.js"
+
 import Restaurant from "../../models/Restaurant.js"
 import BranchOffice from "../../models/BranchOffice.js"
 import Joi from "joi"
 import idSchema from "../../schemas/idSchema.js"
 import { GraphQLError } from "graphql"
 import ProductCategory from "../../models/ProductCategory.js"
+import client from "../../db/redis.client.js"
 
-async function addProduct(__,args, context) {
+async function addProductCategory(__, args, context) {
 
-  // VALIDATE USER INPUT
   const schema = Joi.object().keys({
     branchId: idSchema,
-    name: Joi.string().min(3).max(50),
-    description: Joi.string().min(3).max(100),
-    category: idSchema,
-    countableAmount: Joi.number().integer().min(1),
-    measureUnit: Joi.string().allow(null),
-    contentAmountWeight: Joi.number().integer().min(1),
+    name: Joi.string().min(3).max(50).trim().uppercase()
   })
 
-
-  const {error, value:{branchId, category: categoryId,...input}} = schema.validate(args)
+  const {error, value:{branchId, name}} = schema.validate(args)
 
   if (error) {
     throw new GraphQLError(error.message, {
@@ -53,26 +47,28 @@ async function addProduct(__,args, context) {
     })
   }
 
-  const category = await ProductCategory.findOne({_id: categoryId, branchId})
+  const exists = await ProductCategory.findOne({name, branchId})
 
-  if (!category) {
-    throw new GraphQLError('category was not found', {
+  if(exists) {
+    throw new GraphQLError('similar category already exists', {
       extensions: {
         code: 'BAD_USER_INPUT',
-        http: { status: 404 }
+        http: { status: 409 }
       }
     })
   }
 
-  // SAVE PRODUCT
-  let product = new Product({branchId, category: categoryId,...input})
+  let productCategory = new ProductCategory({name, branchId})
 
-  await product.save()
+  await productCategory.save()
 
-  // RETURN DATA
-  product = JSON.stringify(product)
+  await client.del(`product-categories:${branchId}`)
 
-  return JSON.parse(product)
+  productCategory = JSON.stringify(productCategory)
+
+  productCategory = JSON.parse(productCategory)
+
+  return productCategory
 }
 
-export default addProduct
+export default addProductCategory

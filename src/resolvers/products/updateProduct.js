@@ -15,7 +15,7 @@ async function updateProduct(__,args, context) {
     description: Joi.string().min(3).max(100).optional().empty(null),
     category: Joi.string().min(3).max(50).optional().empty(null),
     countableAmount: Joi.number().integer().min(1).optional().empty(null),
-    measureUnits: Joi.string().optional().allow(null),
+    measureUnit: Joi.string().optional().allow(null),
     contentAmountWeight: Joi.number().integer().min(1).optional().empty(null),
   })
 
