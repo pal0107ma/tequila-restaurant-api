@@ -28,6 +28,11 @@ import deleteProduct from './resolvers/products/deleteProduct.js'
 import inventory from './resolvers/inventory-in/inventory.js'
 import inventoryIn from './resolvers/inventory-in/inventoryIn.js'
 import deleteInventoryIn from './resolvers/inventory-in/deleteInventoryIn.js'
+import addProvider from './resolvers/providers/addProvider.js'
+import provider from './resolvers/providers/provider.js'
+import updateProvider from './resolvers/providers/updateProvider.js'
+import deleteProvider from './resolvers/providers/deleteProvider.js'
+import providers from './resolvers/providers/providers.js'
 
 const resolvers = {
   User: {
@@ -61,6 +66,9 @@ const resolvers = {
   Product: {
     id: (parent) => parent.id ?? parent._id
   },
+  Provider: {
+    id: (parent) => parent.id ?? parent._id
+  },
   InventoryIn: {
     id: (parent) => parent.id ?? parent._id,
     productId: (parent)=> parent.productId._id ?? parent.productId,
@@ -80,7 +88,9 @@ const resolvers = {
     product,
     productCategories, 
     inventory, 
-    inventoryIn
+    inventoryIn, 
+    provider, 
+    providers,
   },
   Mutation: {
     updateUser,
@@ -100,6 +110,9 @@ const resolvers = {
     deleteProductCategory, 
     deleteProduct,
     deleteInventoryIn,
+    addProvider,
+    deleteProvider,
+    updateProvider
   }
 }
 

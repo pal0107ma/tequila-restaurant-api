@@ -69,6 +69,19 @@ type Query {
   productCategories(
     branchId: ID!
   ): [ProductCategory]
+
+  #######################################
+  # PROVIDERS QUERIES
+  #######################################
+
+  provider(id: ID!): Provider
+
+  providers(
+    restaurantId: ID!
+    q: String
+    offset: Int
+    count: Int
+  ): [Provider]
 }
 
 type Mutation {
@@ -222,6 +235,28 @@ type Mutation {
   ): ProductCategory
 
   deleteProductCategory(id: ID!): ProductCategory
+
+  #######################################
+  # PROVIDERS MUTATIONS
+  #######################################
+
+  addProvider(
+    name: String!
+    phoneNr: String
+    email: String
+    desc: String
+    restaurantId: ID!
+  ): Provider
+
+  updateProvider(
+    id: ID!
+    name: String
+    phoneNr: String
+    email: String
+    desc: String
+  ): Provider
+
+  deleteProvider(id: ID!): Provider
 }
 
 input addRestaurantBrachInput {
@@ -414,6 +449,21 @@ type InventoryIn {
   unitCost: Float
   productId: ID
   measureUnit: measureUnitsEnum
+  createdAt: String
+  updatedAt: String
+}
+
+#######################################
+# PROVIDER IN
+#######################################
+
+type Provider {
+  id: ID
+  name: String
+  email: String
+  phoneNr: String
+  restaurantId: ID
+  desc: String
   createdAt: String
   updatedAt: String
 }
