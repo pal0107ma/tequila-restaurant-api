@@ -54,6 +54,22 @@ const branchOfficeSchema = new Schema({
   versionKey: false
 })
 
+branchOfficeSchema.post('findOne', function (doc) {
+
+  if(doc?.users) doc.users = doc.users.map(({_id: userId, allowedBranches}) => {
+
+    const { _id: id, branchRole, categoriesId } = 
+    allowedBranches
+    .find((obj) => String(doc._id) === String(obj.branchId))
+
+    return {
+      userId,
+      id,
+      branchRole, categoriesId
+    }
+  })
+})
+
 
 branchOfficeSchema.set("toJSON", { virtuals: true })
 

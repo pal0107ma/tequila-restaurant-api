@@ -17,6 +17,8 @@ const branchAccessSchema = new Schema({
 
 branchAccessSchema.pre('save', function () {
   this.branchRole = [...new Set(this.branchRole)]
+  this.categoriesId = [...new Set(JSON.parse(JSON.stringify(this.categoriesId)))]
+
 })
 
 export default branchAccessSchema

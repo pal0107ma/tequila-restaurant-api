@@ -4,15 +4,17 @@ import BranchOffice from "../../models/BranchOffice.js";
 import idSchema from "../../schemas/idSchema.js";
 import client from "../../db/redis.client.js";
 import Joi from "joi";
+import { GraphQLError } from 'graphql'
 
 async function updateBranchAccess (__, args, context) {
 
   const schema = Joi.object().keys({
     id: idSchema,
-    branchRole: Joi.array().items(Joi.string()).min(1).optional().empty(null)
+    branchRole: Joi.array().items(Joi.string()).min(1).optional().empty(null),
+    categoriesId: Joi.array().items(idSchema).min(1).optional().empty(null)
   })
 
-  const {error, value: { branchRole, id}} = schema.validate(args)
+  const {error, value: { branchRole, id,categoriesId}} = schema.validate(args)
 
   if (error) {
     throw new GraphQLError(error.message, {
@@ -24,22 +26,29 @@ async function updateBranchAccess (__, args, context) {
     })
   }
 
-  const restaurants = await Restaurant.find({ userId: context.user._id })
-
-  const branchOffices = await BranchOffice.find({
-    restaurantId: { $in: restaurants.map(({_id}) =>_id) }
-  })
-
   let user = await User.findOne({
-    'allowedBranches.branchId': { $in: branchOffices.map(({_id}) =>_id) },
     'allowedBranches._id': id
   }, 
     ).select('-confirmedAccount -password -tokens')
 
   if(!user) return null
 
-  if(branchRole) {
-    user.allowedBranches.id(id).branchRole = branchRole
+  const branchOffice = await BranchOffice.findById(user.allowedBranches.id(id).branchId)
+
+ const restaurant = await Restaurant.findOne({ userId: context.user._id, _id: branchOffice.restaurantId })
+
+  if(!restaurant) {
+    throw new GraphQLError('access denied', {
+      extensions: {
+        code: 'BAD_USER_INPUT',
+        http: { status: 403 }
+      }
+    })
+  }
+
+  if(branchRole || categoriesId) {
+    if(branchRole) user.allowedBranches.id(id).branchRole = branchRole
+    if(categoriesId) user.allowedBranches.id(id).categoriesId = categoriesId
 
     await client.del(`branch_offices:${user.allowedBranches.id(id).branchId}`)
 

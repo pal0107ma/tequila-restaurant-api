@@ -166,6 +166,7 @@ type Mutation {
     branchId: ID!
     userEmail: String!
     branchRole: [branchRoleEnum!]!
+    categoriesId: [ID!]!
   ): BranchOffice
 
   #######################################
@@ -177,6 +178,7 @@ type Mutation {
   updateBranchAccess(
     id: ID!
     branchRole: [branchRoleEnum!]
+    categoriesId: [ID!]
   ): User
 
   #######################################

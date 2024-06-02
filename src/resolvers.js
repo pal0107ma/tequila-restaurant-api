@@ -14,8 +14,6 @@ import updateBranchOffice from './resolvers/branch-offices/updateBranchOffice.js
 import addBranchInvite from './resolvers/branch-invite/addBranchInvite.js'
 import deleteBranchAccess from './resolvers/branch-accesses/deleteBranchAccess.js'
 import updateBranchAccess from './resolvers/branch-accesses/updateBranchAccess.js'
-import branchOfficeUsers from './resolvers/branch-offices/branchOfficeUsers.js'
-import branchOfficeUser from './resolvers/branch-offices/branchOfficeUser.js'
 import addProduct from './resolvers/products/addProduct.js'
 import products from './resolvers/products/products.js'
 import product from './resolvers/products/product.js'
@@ -44,8 +42,7 @@ const resolvers = {
   },
   BranchOffice: {
     id: (parent) => parent.id ?? parent._id,
-    users: branchOfficeUsers,
-    user: branchOfficeUser
+    user: (parent, {id}) => parent.users.find((obj) => obj.id === id)
   },
   Affiliate: {
     id: (parent) => parent.id ?? parent._id,

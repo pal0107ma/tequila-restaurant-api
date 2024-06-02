@@ -1,8 +1,8 @@
 
+import { GraphQLError } from 'graphql'
 
 import client from "../../db/redis.client.js"
 import BranchOffice from "../../models/BranchOffice.js"
-import User from "../../models/User.js"
 import idSchema from "../../schemas/idSchema.js"
 
 async function branchOffice (__, { id }, context) {

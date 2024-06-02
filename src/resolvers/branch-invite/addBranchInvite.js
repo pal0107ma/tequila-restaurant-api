@@ -15,10 +15,11 @@ async function addBranchInvite (__, args, context){
       minDomainSegments: 2,
       tlds: { allow: ['com', 'net'] }
     }),
-    branchRole: Joi.array().items(Joi.string()).min(1)
+    branchRole: Joi.array().items(Joi.string()).min(1),
+    categoriesId: Joi.array().items(idSchema).min(1),
   })
 
-  const {error, value:{branchId, userEmail, branchRole}} = schema.validate(args)
+  const {error, value:{branchId, userEmail, ...input}} = schema.validate(args)
 
   if (error) {
     throw new GraphQLError(error.message, {
@@ -29,7 +30,6 @@ async function addBranchInvite (__, args, context){
       }
     })
   }
-
 
 
   const restaurants = await Restaurant.find({ userId: context.user._id })
@@ -81,8 +81,8 @@ async function addBranchInvite (__, args, context){
 
   const branchInvite = new BranchInvite({
     branchId, 
-    branchRole,
-    userEmail
+    userEmail,
+    ...input
   })
 
   await branchInvite.save()
