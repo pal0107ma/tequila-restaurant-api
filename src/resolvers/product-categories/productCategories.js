@@ -1,19 +1,18 @@
+import Restaurant from "../../models/Restaurant.js" // Import Restaurant model
+import BranchOffice from "../../models/BranchOffice.js" // Import BranchOffice model
+import Joi from "joi" // Import Joi for validation
+import idSchema from "../../schemas/idSchema.js" // Import ID validation schema
+import { GraphQLError } from "graphql" // Import GraphQLError for error handling
+import ProductCategory from "../../models/ProductCategory.js" // Import ProductCategory model
+import client from "../../db/redis.client.js" // Import Redis client
 
-import Restaurant from "../../models/Restaurant.js"
-import BranchOffice from "../../models/BranchOffice.js"
-import Joi from "joi"
-import idSchema from "../../schemas/idSchema.js"
-import { GraphQLError } from "graphql"
-import ProductCategory from "../../models/ProductCategory.js"
-import client from "../../db/redis.client.js"
-
-async function productCategories(__, args,context) {
-
+async function productCategories(__, args, context) {
+  // 1. Validate branchId argument
   const schema = Joi.object().keys({
-    branchId: idSchema
+    branchId: idSchema // Use pre-defined ID validation schema
   })
 
-  const {error, value:{ branchId }} = schema.validate(args)
+  const { error, value: { branchId } } = schema.validate(args)
 
   if (error) {
     throw new GraphQLError(error.message, {
@@ -25,19 +24,27 @@ async function productCategories(__, args,context) {
     })
   }
 
-   // VERIFY ACCESS
-   const restaurants = await Restaurant.find({
+  // 2. Verify access to the branch
+  // Find user's restaurants
+  const restaurants = await Restaurant.find({
     userId: context.user._id
   })
 
-  const branch = await BranchOffice.findOne({ 
-    _id: branchId, 
+  // Find the branch with matching ID and belonging to user's restaurants
+  const branch = await BranchOffice.findOne({
+    _id: branchId,
     restaurantId: {
-      $in: restaurants.map(({_id}) => _id)
+      $in: restaurants.map(({ _id }) => _id) // Use map to extract restaurant IDs
     }
   })
 
-  if (!branch) {
+  // Check authorization for the branch (if any)
+  const authorized = ((branchAccess) => branchAccess ?
+      branchAccess.branchRole.includes('STORER') // Check for 'STORER' role
+    : null
+  )(context.user.allowedBranches.find((doc) => doc.branchId === branchId ))
+
+  if (!branch && !authorized) {
     throw new GraphQLError('branch was not found or not allowed', {
       extensions: {
         code: 'BAD_USER_INPUT',
@@ -46,26 +53,29 @@ async function productCategories(__, args,context) {
     })
   }
 
+  // 3. Retrieve product categories with caching
   let result = await client.get(`product-categories:${branchId}`)
 
-  if(!result) {
-    result = await ProductCategory.find({branchId})  
+  if (!result) {
+    // Cache miss: fetch from database
+    result = await ProductCategory.find({ branchId })
 
-    if(!result.length) return []
+    if (!result.length) return [] // Return empty array if no categories found
 
+    // Convert to JSON for caching
     result = JSON.stringify(result)
 
     await client.set(`product-categories:${branchId}`, result, {
       EX: process.env.PRODUCT_CATEGORY_REDIS_EXP
         ? Number(process.env.PRODUCT_CATEGORY_REDIS_EXP)
-        : 60 * 60 * 24,
-      NX: true
+        : 60 * 60 * 24 // Set expiry time (default 1 day)
     })
   }
 
+  // Parse JSON back to object
   result = JSON.parse(result)
 
-  return result
+  return result;
 }
 
-export default productCategories
+export default productCategories;
