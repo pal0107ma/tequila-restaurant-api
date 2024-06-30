@@ -1,37 +1,32 @@
 import bcrypt from 'bcrypt'
 import Joi from 'joi'
-
-// EXPRESS TYPES
 import { response, request } from 'express'
-
-// MODEL
 import User from '../../models/User.js'
 import BranchInvite from '../../models/BranchInvite.js'
-// HELPERS
 import internalErrorServer from '../../helpers/internalErrorServer.js'
 import sendEmail from '../../helpers/sendEmail.js'
-
-// JOI SCHEMAS
 import passwordSchema from '../../schemas/passwordSchema.js'
+import rmSensitive from './helpers/rmSensitive.js'
 
 const signup = async (req = request, res = response) => {
   try {
-
-    // VALIDATION SCHEMA
+    // 1. VALIDATE USER INPUT
     const schema = Joi.object({
       firstName: Joi.string()
         .min(3)
         .max(30)
         .trim()
-        .regex(/^[A-Z]+$/i).required(),
+        .regex(/^[A-Z]+$/i) // Uppercase letters only, can be adjusted based on requirements
+        .required(),
 
       lastName: Joi.string()
         .min(3)
         .max(30)
         .trim()
-        .regex(/^[A-Z]+$/i).required(),
+        .regex(/^[A-Z]+$/i) // Uppercase letters only, can be adjusted based on requirements
+        .required(),
 
-      password: passwordSchema.required(),
+      password: passwordSchema.required(), // Use pre-defined password validation schema
 
       email: Joi.string().email({
         minDomainSegments: 2,
@@ -39,53 +34,51 @@ const signup = async (req = request, res = response) => {
       }).required(),
     })
 
-    // VALIDATE DATA
     const { value: input, error } = schema.validate(req.body)
 
-    if (error) return res.status(400).json(error)
-
-    // VERIFY IF DOES NOT EXIST ANY USER WITH SAME EMAIL OR USERNAME
-    const doesExist = await User.findOne({ email: input.email })
-
-    if (doesExist) { return res.status(409).json({ msg: 'email already in use' }) }
-
-    // HASH PASSWORD BEFORE CREATE USER
-    input.password = bcrypt.hashSync(input.password, 10)
-
-    // CREATE USER
-    const user = new User({
-      ...input,
-      tokens: [{ }]
-    })
-
-    // ASSIGN ROLE
-
-    const superAdmin = await User.findOne({ userType: 'SUPER_ADMIN'})
-
-    if(!superAdmin) {
-      user.userType = 'SUPER_ADMIN'
+    if (error) {
+      return res.status(400).json(error) // Send bad request error with validation details
     }
 
-    // BRANCH INVITES
+    // 2. CHECK USER EXISTENCE
+    const doesExist = await User.findOne({ email: input.email })
 
-    const branchInvites = await BranchInvite.find({userEmail: user.email})
+    if (doesExist) {
+      return res.status(409).json({ msg: 'email already in use' }) // Send conflict error if email already exists
+    }
 
+    // 3. HASH PASSWORD
+    input.password = bcrypt.hashSync(input.password, 10) // Hash password before saving the user
+
+    // 4. CREATE USER
+    const user = new User({
+      ...input,
+      tokens: [{ }] // Create an empty array for user tokens
+    })
+
+    // 5. ASSIGN USER ROLE (SUPER_ADMIN if none exists)
+    const superAdmin = await User.findOne({ userType: 'SUPER_ADMIN' })
+
+    if (!superAdmin) {
+      user.userType = 'SUPER_ADMIN' // Assign SUPER_ADMIN role if there's no existing one
+    }
+
+    // 6. HANDLE BRANCH INVITES
+    const branchInvites = await BranchInvite.find({ userEmail: user.email })
+
+    // Assign branch invites to the user
     user.allowedBranches = branchInvites
 
-    await BranchInvite.deleteMany({userEmail: user.email})
+    // Delete the used branch invites to avoid duplicates
+    await BranchInvite.deleteMany({ userEmail: user.email })
 
-    // SAVE
-
-    await user.save()
-
-    // SEND CONFIRMATION EMAIL
-
+    // 7. SEND CONFIRMATION EMAIL
     await sendEmail({
       htmlParams: {
         HREF: `${
           process.env.FRONTEND_URL || 'http://localhost:5050/auth'
-        }/confirm-account?t=${user.tokens[0].t}`,
-        TITLE: 'Welcome to Backlearners!',
+        }/confirm-account?t=${user.tokens[0].t}`, // Confirmation link with token
+        TITLE: 'Welcome to El Origen!',
         LINK_TEXT: 'Click here!',
         TEXT: 'We need you confirm your account let\'s press "Click here!"'
       },
@@ -93,21 +86,15 @@ const signup = async (req = request, res = response) => {
       subject: 'Confirm account email'
     })
 
-    // SEND USER INFO
+    // 8. SAVE USER AND SEND RESPONSE
+    await user.save()
+
     res.status(201).json({
       msg: 'signup success',
-      user:(({ password, tokens, accountConfirmed,allowedBranches,_id:id, ...user }) => {
-        return { 
-          id,
-          allowedBranches: allowedBranches.map(({ _doc:{_id:id, ...rest} }) => {
-            return { id,...rest }
-          }),
-          ...user
-        }
-      })(user._doc)
+      user: rmSensitive(user) // Send back user information (excluding sensitive data)
     })
   } catch (error) {
-    internalErrorServer(error, res)
+    internalErrorServer(error, res) // Handle internal errors with helper function
   }
 }
 

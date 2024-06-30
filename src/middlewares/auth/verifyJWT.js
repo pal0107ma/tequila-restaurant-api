@@ -1,100 +1,89 @@
 import client from '../../db/redis.client.js'
 import jwt from 'jsonwebtoken'
-
-// EXPRESS TYPES
 import { response, request } from 'express'
-
-// MODEL
 import User from '../../models/User.js'
-
-// VALIDATION SCHEMA
-
-// HELPERS
 import internalErrorServer from '../../helpers/internalErrorServer.js'
 
 const verifyJWT = async (req = request, res = response, next) => {
   try {
+    // 1. CHECK FOR AUTHORIZATION HEADER
     if (
       !req?.headers?.authorization ||
       !req?.headers?.authorization.startsWith('Bearer')
-    ) { return res.status(401).json({ msg: 'invalid auth' }) }
+    ) {
+      return res.status(401).json({ msg: 'invalid auth' }) // Unauthorized error if no authorization header or invalid format
+    }
 
-    // GRAB TOKEN FROM HEADERS
-    const [, t] = req.headers.authorization.split(' ')
+    // 2. EXTRACT TOKEN FROM HEADER
+    const [, t] = req.headers.authorization.split(' ') // Split 'Bearer' and token
 
-    // VERIFY JWT
-    const {
-      _id: id
-    } = jwt.verify(t, process.env.JWT_KEY || 'secret')
+    // 3. VERIFY JWT TOKEN
+    let decodedToken
 
-    // ===============================
-    // TOKEN IS VALID >>>
-    // ===============================
+    try {
+      decodedToken = jwt.verify(t, process.env.JWT_KEY || 'secret') // Verify token with secret
+    } catch (error) {
+      // Handle specific JWT verification errors
+      if (
+        error?.message === 'jwt expired' ||
+        error?.message === 'invalid token' ||
+        error?.message === 'jwt malformed' ||
+        error?.message === 'invalid signature'
+      ) {
+        return res.status(401).json({ msg: 'invalid auth' }) // Unauthorized error for invalid JWT
+      }
+      throw error // Re-throw other errors for internal server error handling
+    }
 
-    // VERIFY IF TOKEN WAS NOT DELETED FROM REDIS COLLECTION
-    const redisToken = await client.exists(`jwt:${t}`)
+    const { _id: id } = decodedToken // Extract user ID from decoded token
+
+    // 4. CHECK TOKEN EXISTENCE IN REDIS (optimistic update)
+    const redisToken = await client.exists(`jwt:${t}`) // Check if token exists in Redis
 
     let user
 
-    // IF TOKEN WAS DELETED FROM REDIS COLLECTION
+    // 5. HANDLE REDIS TOKEN ABSENCE
     if (!redisToken) {
-      // FIND USER BY TOKEN
-      user = await User.findOne({ 'tokens.t': t })
+      // Fetch user data by token from MongoDB (excluding sensitive fields)
+      user = await User.findOne({ 'tokens.t': t }).select('-tokens -password -accountConfirmed')
 
-      // IF USER LOGGED OUT OR USER WAS DELETED
+      // User not found (logged out or deleted) - unauthorized error
       if (!user) return res.status(401).json({ msg: 'invalid auth' })
 
-      // STRINGIFY USER DATA BUT EXCLUDE TOKENS
-      user = JSON.stringify((({ tokens, ...user }) => user)(user._doc))
-
-      // SAVE JWT IN REDIS COLLECTION
+      // Stringify user data and save token to Redis with expiration (using environment variable or default)
+      user = JSON.stringify(user)
       await client.set(`jwt:${t}`, t, {
-        EX: process.env.JWT_REDIS_EXP
-          ? Number(process.env.JWT_REDIS_EXP)
-          : 60 * 60 * 24,
-        NX: true
+        EX: process.env.JWT_REDIS_EXP ? Number(process.env.JWT_REDIS_EXP) : 60 * 60 * 24
       })
     }
 
-    // _ IF TOKEN EXISTS IN REDIS BUT WE DIDN'T GET USER YET
-    // _ OR WE DID'T GET USER EITHER
+    // 6. HANDLE USER DATA RETRIEVAL (might be needed in both Redis cases)
     if (!user) {
+      // Try retrieving user data by ID from Redis
       user = await client.get(`users:${id}`)
 
-      // IF USER DOES NOT EXIST IN REDIS
+      // User not found in Redis - fetch from MongoDB (excluding sensitive fields)
       if (!user) {
-        user = await User.findById(id).select('-tokens')
-
-        // IF USER WAS DELETED PERMANENTLY
+        user = await User.findById(id).select('-tokens -password -accountConfirmed')
+        // Permanent user deletion - unauthorized error
         if (!user) return res.status(401).json({ msg: 'invalid auth' })
 
         user = JSON.stringify(user)
-
-        // SAVE TO REDIS
+        // Save user data to Redis with expiration (using environment variable or default)
         await client.set(`users:${id}`, user, {
-          EX: process.env.USER_REDIS_EXP
-            ? Number(process.env.USER_REDIS_EXP)
-            : 60 * 60 * 24,
-          NX: true
+          EX: process.env.USER_REDIS_EXP ? Number(process.env.USER_REDIS_EXP) : 60 * 60 * 24
         })
-      };
+      }
     }
 
-    // SUCCESS
+    // 7. SUCCESS
     req.context = {
-      user: JSON.parse(user)
+      user
     }
 
-    next()
+    next() // Pass control to the next middleware or route handler
   } catch (error) {
-    if (
-      error?.message === 'jwt expired' ||
-      error?.message === 'invalid token' ||
-      error?.message === 'jwt malformed' ||
-      error?.message === 'invalid signature'
-    ) { return res.status(401).json({ msg: 'invalid auth' }) }
-
-    internalErrorServer(error, res)
+    internalErrorServer(error, res) // Handle internal server errors with helper function
   }
 }
 

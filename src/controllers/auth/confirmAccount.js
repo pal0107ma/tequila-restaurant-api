@@ -1,34 +1,25 @@
-import Joi from 'joi'
-
-// EXPRESS TYPES
 import { response, request } from 'express'
-
-// MODEL
-import User from '../../models/User.js'
-
-// HELPERS
 import internalErrorServer from '../../helpers/internalErrorServer.js'
+import rmSensitive from './helpers/rmSensitive.js'
 
 const confirmAccount = async (req = request, res = response) => {
   try {
-    const {user,t} = req.context
+    // 1. EXTRACT USER AND TOKEN FROM CONTEXT
+    const { user, t } = req.context // Extract user data and token from request context
 
-    user.accountConfirmed = true
+    // 2. CONFIRM USER ACCOUNT
+    user.accountConfirmed = true // Set the accountConfirmed flag to true
 
-    // DELETE TOKEN
-    user.tokens.pull({ t })
+    // 3. REMOVE CONFIRMATION TOKEN
+    user.tokens.pull({ t }) // Remove the used confirmation token from the user's tokens array
 
-    // SAVE CHANGES
-    await user.save()
+    // 4. SAVE USER CHANGES
+    await user.save() // Save the updated user data
 
-    // SEND USER INFO
-    res.json(
-      (({ tokens, accountConfirmed,password,_id, ...user }) => {
-        return { msg: 'confirm account success',user:{id:_id,...user} }
-      })(user._doc)
-    )
+    // 5. SEND SUCCESS RESPONSE
+    res.json({ msg: 'confirm account success', user: rmSensitive(user) }) // Inform user that account confirmation is successful and send user data (excluding sensitive information)
   } catch (error) {
-    internalErrorServer(error, res)
+    internalErrorServer(error, res) // Handle internal server errors with helper function
   }
 }
 
