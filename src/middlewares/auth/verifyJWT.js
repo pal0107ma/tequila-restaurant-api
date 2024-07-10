@@ -76,6 +76,8 @@ const verifyJWT = async (req = request, res = response, next) => {
       }
     }
 
+    user = JSON.parse(user) 
+
     // 7. SUCCESS
     req.context = {
       user

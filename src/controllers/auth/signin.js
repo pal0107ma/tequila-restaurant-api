@@ -87,7 +87,7 @@ const signin = async (req = request, res = response) => {
 
     // Cache the user object in Redis with expiration (using environment variable or default)
     await client.set(
-      `users:${user._doc.id}`,
+      `users:${user._id}`,
       JSON.stringify(user),
       {
         EX: process.env.USER_REDIS_EXP ? Number(process.env.USER_REDIS_EXP) : 60 * 60 * 24
