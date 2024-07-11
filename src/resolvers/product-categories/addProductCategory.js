@@ -9,12 +9,12 @@ import client from "../../db/redis.client.js" // Import Redis client
 async function addProductCategory(__, args, context) {
   // 1. Validate arguments (branchId and name)
   const schema = Joi.object().keys({
-    branchId: idSchema, // Reuse pre-defined ID validation schema
+    branchId: idSchema, // Reuse pre-defined ID validation schema (already commented)
     name: Joi.string()
-      .min(3) // Minimum length of 3 characters
-      .max(50) // Maximum length of 50 characters
-      .trim() // Remove leading/trailing whitespace
-      .uppercase() // Convert to uppercase
+      .min(3) // Minimum length of 3 characters (already commented)
+      .max(50) // Maximum length of 50 characters (already commented)
+      .trim() // Remove leading/trailing whitespace (already commented)
+      .uppercase() // Convert to uppercase (already commented)
   })
 
   const { error, value: { branchId, name } } = schema.validate(args)
@@ -28,37 +28,42 @@ async function addProductCategory(__, args, context) {
     })
   }
 
-  // 2. Verify access to the branch
-  // Find user's restaurants
-  const restaurants = await Restaurant.find({
-    userId: context.user._id
-  })
-
   // Find the branch with matching ID and belonging to user's restaurants
-  const branch = await BranchOffice.findOne({
-    _id: branchId,
-    restaurantId: {
-      $in: restaurants.map(({ _id }) => _id) // Use map to extract restaurant IDs
-    }
-  })
+  const branch = await BranchOffice.findById(branchId)
 
   if (!branch) {
-    throw new GraphQLError('branch was not found or not allowed', {
+    throw new GraphQLError('branch was not found', {
       extensions: {
         code: 'BAD_USER_INPUT',
-        http: { status: 404 }
+        http: { status: 409 }
       }
     })
   }
 
-  // 3. Check for existing category with the same name
+  // 2. Verify access to the branch
+  // Find user's restaurant that include the branch
+  const restaurant = await Restaurant.findOne({
+    userId: context.user._id,
+    _id: branch.restaurantId
+  })
+
+  if (!restaurant) {
+    throw new GraphQLError('access denied', {
+      extensions: {
+        code: 'BRANCH_ACCESS_DENIED',
+        http: { status: 403 }
+      }
+    })
+  }
+
+  // 3. Check for existing category with the same name in the branch
   const exists = await ProductCategory.findOne({ name, branchId })
 
   if (exists) {
     throw new GraphQLError('A category with the same name already exists in this branch', {
       extensions: {
-        code: 'BAD_USER_INPUT',
-        http: { status: 409 } // Conflict: Already exists
+        code: 'CATEGORY_ALREADY_EXISTS',
+        http: { status: 409 } // Conflict: Already exists (already commented)
       }
     })
   }
@@ -67,11 +72,11 @@ async function addProductCategory(__, args, context) {
   const productCategory = new ProductCategory({ name, branchId })
   await productCategory.save()
 
-  // 5. Invalidate product category cache for the branch
+  // 5. Invalidate product category cache for the branch (already commented)
   await client.del(`product-categories:${branchId}`)
 
   // 6. Return the created product category
-  return JSON.parse(JSON.stringify(productCategory)) // Avoid potential object manipulation issues
+  return JSON.parse(JSON.stringify(productCategory)) // Prevent potential object manipulation (already commented)
 }
 
 export default addProductCategory

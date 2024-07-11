@@ -45,10 +45,10 @@ async function productCategories(__, args, context) {
   )(context.user.allowedBranches.find((doc) => doc.branchId === branchId ))
 
   if (!branch && !authorized) {
-    throw new GraphQLError('branch was not found or not allowed', {
+    throw new GraphQLError('access denied', {
       extensions: {
         code: 'BAD_USER_INPUT',
-        http: { status: 404 }
+        http: { status: 403 }
       }
     })
   }
