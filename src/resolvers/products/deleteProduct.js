@@ -4,7 +4,7 @@ import BranchOffice from "../../models/BranchOffice.js"
 import idSchema from "../../schemas/idSchema.js"
 import { GraphQLError } from "graphql"
 import client from "../../db/redis.client.js"
-import InventoryIn from "../../models/InventoryIn.js"
+import InventoryEntry from "../../models/InventoryEntry.js"
 
 async function deleteProduct(__, { id }, context) {
 
@@ -61,11 +61,11 @@ async function deleteProduct(__, { id }, context) {
   // 5. CHECK INVENTORY
   // Check if there are existing inventory entries for this product
 
-  const inventory = await InventoryIn.find({ productId: id })
+  const inventoryEntries = await InventoryEntry.find({ productId: id })
 
   // 6. PRODUCT IN USE
   // If there's inventory for the product, prevent deletion and throw an error
-  if (inventory.length) {
+  if (inventoryEntries.length) {
     throw new GraphQLError('cannot delete product with existing inventory', {
       extensions: {
         code: 'BAD_USER_INPUT',

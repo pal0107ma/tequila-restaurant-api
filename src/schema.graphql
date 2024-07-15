@@ -50,17 +50,17 @@ type Query {
   # INVENTORY QUERIES
   #######################################
 
-  inventoryIn(
+  inventoryEntry(
     id: ID!
-  ): InventoryIn
+  ): InventoryEntry
 
-  inventory(
+  inventoryEntries(
     branchId: ID!
     category: ID
     q: String
     offset: Int
     count: Int
-  ): [InventoryIn]  
+  ): [InventoryEntry]  
 
   #######################################
   # PRODUCT CATEGORIES QUERIES
@@ -217,15 +217,15 @@ type Mutation {
   # INVENTORY MUTATIONS
   #######################################
 
-  addInventoryIn(
+  addInventoryEntry(
     productId: ID!
     quantity: Int!
     purchasePrice: Float!
-  ): InventoryIn
+  ): InventoryEntry
 
-  deleteInventoryIn(
+  deleteInventoryEntry(
     id: ID!
-  ): InventoryIn
+  ): InventoryEntry
 
   #######################################
   # PRODUCT CATEGORY MUTATIONS
@@ -441,16 +441,15 @@ enum measureUnitsEnum {
 # INVENTORY IN
 #######################################
 
-type InventoryIn {
+type InventoryEntry {
   id: ID
   branchId: ID
   purchasePrice: Float
   quantity: Int
-  total: Int
+  totalUnits: Int
   available: Int
   unitCost: Float
   productId: ID
-  measureUnit: measureUnitsEnum
   createdAt: String
   updatedAt: String
 }

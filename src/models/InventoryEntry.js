@@ -1,6 +1,6 @@
 import {Schema, model} from 'mongoose'
 
-const merchandiseReceiptSchema = new Schema({
+const inventoryInSchema = new Schema({
   quantity: {
     type: Number,
     required: true
@@ -21,7 +21,7 @@ const merchandiseReceiptSchema = new Schema({
   outs: {
     type: [Number]
   },
-  total: {
+  totalUnits: {
     type: Number,
     required: true
   },
@@ -35,6 +35,7 @@ const merchandiseReceiptSchema = new Schema({
   versionKey: false
 })
 
-const InventoryIn = model('inventory_in',merchandiseReceiptSchema,'inventory')
 
-export default InventoryIn
+const InventoryEntry = model('inventory_entry',inventoryInSchema,'inventory_entries')
+
+export default InventoryEntry
