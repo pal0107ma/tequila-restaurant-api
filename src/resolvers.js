@@ -31,6 +31,9 @@ import provider from './resolvers/providers/provider.js'
 import updateProvider from './resolvers/providers/updateProvider.js'
 import deleteProvider from './resolvers/providers/deleteProvider.js'
 import providers from './resolvers/providers/providers.js'
+import addRecipeCategory from './resolvers/recipes-categories /addRecipeCategory.js'
+import recipeCategories from './resolvers/recipes-categories /recipeCategories.js'
+import deleteRecipeCategory from './resolvers/recipes-categories /deleteRecipeCategory.js'
 
 const resolvers = {
   User: {
@@ -74,6 +77,9 @@ const resolvers = {
   ProductCategory: {
     id: (parent) => parent.id ?? parent._id
   },
+  RecipeCategory: {
+    id: (parent) => parent.id ?? parent._id
+  },
   Query: {
     userProfile,
     restaurant,
@@ -87,6 +93,7 @@ const resolvers = {
     inventoryEntry, 
     provider, 
     providers,
+    recipeCategories,
   },
   Mutation: {
     updateUser,
@@ -108,7 +115,9 @@ const resolvers = {
     deleteInventoryEntry,
     addProvider,
     deleteProvider,
-    updateProvider
+    updateProvider,
+    addRecipeCategory,
+    deleteRecipeCategory
   }
 }
 

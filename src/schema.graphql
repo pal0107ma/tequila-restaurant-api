@@ -63,12 +63,20 @@ type Query {
   ): [InventoryEntry]  
 
   #######################################
-  # PRODUCT CATEGORIES QUERIES
+  # PRODUCT CATEGORY QUERIES
   #######################################
 
   productCategories(
     branchId: ID!
   ): [ProductCategory]
+
+  #######################################
+  # RECIPE CATEGORY QUERIES
+  #######################################
+
+  recipeCategories(
+    branchId: ID!
+  ): [RecipeCategory]
 
   #######################################
   # PROVIDERS QUERIES
@@ -239,6 +247,17 @@ type Mutation {
   deleteProductCategory(id: ID!): ProductCategory
 
   #######################################
+  # RECIPE CATEGORY MUTATIONS
+  #######################################
+
+  addRecipeCategory(
+    name: String!
+    branchId: ID!
+  ): RecipeCategory
+
+  deleteRecipeCategory(id: ID!): RecipeCategory
+
+  #######################################
   # PROVIDERS MUTATIONS
   #######################################
 
@@ -283,6 +302,15 @@ input addRestaurantBrachInput {
 #######################################
 
 type ProductCategory {
+  id: ID
+  name: String
+}
+
+#######################################
+# RECIPE CATEGORY
+#######################################
+
+type RecipeCategory {
   id: ID
   name: String
 }
