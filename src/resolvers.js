@@ -34,6 +34,11 @@ import providers from './resolvers/providers/providers.js'
 import addRecipeCategory from './resolvers/recipes-categories /addRecipeCategory.js'
 import recipeCategories from './resolvers/recipes-categories /recipeCategories.js'
 import deleteRecipeCategory from './resolvers/recipes-categories /deleteRecipeCategory.js'
+import addRecipe from './resolvers/recipes/addRecipe.js'
+import recipes from './resolvers/recipes/recipes.js'
+import recipe from './resolvers/recipes/recipe.js'
+import updateRecipe from './resolvers/recipes/updateRecipe.js'
+import deleteRecipe from './resolvers/recipes/deleteRecipe.js'
 
 const resolvers = {
   User: {
@@ -80,6 +85,9 @@ const resolvers = {
   RecipeCategory: {
     id: (parent) => parent.id ?? parent._id
   },
+  Recipe: {
+    id: (parent) => parent.id ?? parent._id
+  },
   Query: {
     userProfile,
     restaurant,
@@ -94,6 +102,8 @@ const resolvers = {
     provider, 
     providers,
     recipeCategories,
+    recipes,
+    recipe
   },
   Mutation: {
     updateUser,
@@ -117,7 +127,10 @@ const resolvers = {
     deleteProvider,
     updateProvider,
     addRecipeCategory,
-    deleteRecipeCategory
+    deleteRecipeCategory,
+    addRecipe,
+    updateRecipe, 
+    deleteRecipe,
   }
 }
 

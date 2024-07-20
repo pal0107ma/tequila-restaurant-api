@@ -90,6 +90,21 @@ type Query {
     offset: Int
     count: Int
   ): [Provider]
+
+  #######################################
+  # RECIPE QUERIES
+  #######################################
+
+  recipe(id: ID!): Recipe
+
+  recipes(
+    branchId: ID!
+    q: String
+    offset: Int
+    count: Int
+    category: ID
+  ): [Recipe]
+
 }
 
 type Mutation {
@@ -278,6 +293,39 @@ type Mutation {
   ): Provider
 
   deleteProvider(id: ID!): Provider
+
+  #######################################
+  # RECIPE MUTATIONS
+  #######################################
+
+  addRecipe(
+    "must be a valid mongo id"
+    branchId: ID!
+    "min length 3 max length 60"
+    description: String!
+    "min length 3 max length 30"
+    name: String!
+   "must be a valid mongo id"
+    category: ID!
+  ): Recipe
+
+  deleteRecipe(
+    "must be a valid mongo id"
+    id: ID!
+  ): Recipe
+
+  updateRecipe(
+    "must be a valid mongo id"
+    id: ID!
+    "min length 3 max length 60"
+    description: String
+    "min length 3 max length 30"
+    name: String
+    "must be a valid mongo id"
+    category: ID
+  ): Recipe
+  
+
 }
 
 input addRestaurantBrachInput {
@@ -420,6 +468,25 @@ enum userTypeEnum {
 enum paymentMethodEnum {
   PAYPAL
   STRIPE
+}
+
+#######################################
+# RECIPE
+#######################################
+
+type Recipe {
+  id: ID
+  name: String
+  description: String
+  items: [RecipeItem]
+  branchId: ID
+  category: ID
+}
+
+type RecipeItem {
+  id: ID
+  productId: ID
+  quantity: Int
 }
 
 #######################################
