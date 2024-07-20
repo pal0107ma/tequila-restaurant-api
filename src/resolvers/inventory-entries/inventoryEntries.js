@@ -58,6 +58,15 @@ async function inventoryEntries(__, args, context) {
   // Fetch branch details based on branchId
   const branch = await BranchOffice.findById(branchId)
 
+  if (!branch) {
+    throw new GraphQLError('branch was not found', {
+      extensions: {
+        code: 'BRANCH_NOT_FOUND',
+        http: { status: 409 }
+      }
+    })
+  }
+
   // Find the restaurant associated with the branch office and the user
   const restaurant = await Restaurant.findOne({
     userId: context.user._id,
