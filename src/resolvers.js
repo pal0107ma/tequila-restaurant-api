@@ -39,6 +39,9 @@ import recipes from './resolvers/recipes/recipes.js'
 import recipe from './resolvers/recipes/recipe.js'
 import updateRecipe from './resolvers/recipes/updateRecipe.js'
 import deleteRecipe from './resolvers/recipes/deleteRecipe.js'
+import addRecipeItem from './resolvers/recipe-items/addRecipeItem.js'
+import deleteRecipeItem from './resolvers/recipe-items/deleteRecipeItem.js'
+import updateRecipeItem from './resolvers/recipe-items/updateRecipeItem.js'
 
 const resolvers = {
   User: {
@@ -88,6 +91,9 @@ const resolvers = {
   Recipe: {
     id: (parent) => parent.id ?? parent._id
   },
+  RecipeItem: {
+    id: (parent) => parent.id ?? parent._id
+  },
   Query: {
     userProfile,
     restaurant,
@@ -131,6 +137,9 @@ const resolvers = {
     addRecipe,
     updateRecipe, 
     deleteRecipe,
+    addRecipeItem,
+    deleteRecipeItem,
+    updateRecipeItem
   }
 }
 

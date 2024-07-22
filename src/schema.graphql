@@ -324,7 +324,31 @@ type Mutation {
     "must be a valid mongo id"
     category: ID
   ): Recipe
-  
+
+  #######################################
+  # RECIPE ITEM MUTATIONS
+  #######################################
+
+  addRecipeItem(
+    "must be a valid mongo id"
+    productId: ID!
+    "must be a valid mongo id"
+    recipeId: ID!
+    "float num min 0.0001"
+    quantity: Float!
+  ): Recipe
+
+  deleteRecipeItem(
+    "must be a valid mongo id"
+    id: ID!
+  ): Recipe
+
+  updateRecipeItem(
+    "must be a valid mongo id"
+    id: ID!
+    "float num min 0.0001"
+    quantity: Float
+  ): Recipe
 
 }
 
@@ -486,7 +510,7 @@ type Recipe {
 type RecipeItem {
   id: ID
   productId: ID
-  quantity: Int
+  quantity: Float
 }
 
 #######################################
