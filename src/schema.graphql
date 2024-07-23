@@ -1,18 +1,26 @@
 type Query {
   # USER PROFILE
-  userProfile(id: ID): User
+  userProfile(
+    "must be a valid mongo id"
+    id: ID
+  ): User
 
   #######################################
   # RESTAURANT QUERIES
   #######################################
 
-  restaurant(id: ID!): Restaurant
+  restaurant(
+    "must be a valid mongo id"
+    id: ID!
+  ): Restaurant
 
   restaurants(
     q: String
     plan: restaurantPlanEnum
     status: restaurantStatusEnum
+    "integer min 0 default 0"
     offset: Int
+    "integer min 5 default 10"
     count: Int
   ): [Restaurant]
 
@@ -23,10 +31,14 @@ type Query {
   branchOffice(id: ID!): BranchOffice
 
   branchOffices(
-    restaurantId: ID!
     q: String
+    "must be a valid mongo id"
+    restaurantId: ID!
+    "must be boolean"
     principal: Boolean
+    "integer min 0 default 0"
     offset: Int
+    "integer min 5 default 10"
     count: Int
   ): [BranchOffice]
 
@@ -35,14 +47,19 @@ type Query {
   #######################################
 
   products(
-    branchId: ID!
     q: String
+    "must be a valid mongo id"
+    branchId: ID!
+    "integer min 0 default 0"
     offset: Int
+    "integer min 5 default 10"
     count: Int
+    "must be a valid mongo id"
     category: ID
   ): [Product]
 
   product(
+    "must be a valid mongo id"
     id: ID!
   ): Product
 
@@ -51,14 +68,19 @@ type Query {
   #######################################
 
   inventoryEntry(
+    "must be a valid mongo id"
     id: ID!
   ): InventoryEntry
 
   inventoryEntries(
-    branchId: ID!
-    category: ID
     q: String
+    "must be a valid mongo id"
+    branchId: ID!
+    "must be a valid mongo id"
+    category: ID
+    "integer min 0 default 0"
     offset: Int
+    "integer min 5 default 10"
     count: Int
   ): [InventoryEntry]  
 
@@ -67,6 +89,7 @@ type Query {
   #######################################
 
   productCategories(
+    "must be a valid mongo id"
     branchId: ID!
   ): [ProductCategory]
 
@@ -75,6 +98,7 @@ type Query {
   #######################################
 
   recipeCategories(
+    "must be a valid mongo id"
     branchId: ID!
   ): [RecipeCategory]
 
@@ -82,12 +106,18 @@ type Query {
   # PROVIDERS QUERIES
   #######################################
 
-  provider(id: ID!): Provider
+  provider(
+    "must be a valid mongo id"
+    id: ID!
+  ): Provider
 
   providers(
-    restaurantId: ID!
     q: String
+    "must be a valid mongo id"
+    restaurantId: ID!
+    "integer min 0 default 0"
     offset: Int
+    "integer min 5 default 10"
     count: Int
   ): [Provider]
 
@@ -95,13 +125,20 @@ type Query {
   # RECIPE QUERIES
   #######################################
 
-  recipe(id: ID!): Recipe
+  recipe(
+    "must be a valid mongo id"
+    id: ID!
+  ): Recipe
 
   recipes(
-    branchId: ID!
     q: String
+    "must be a valid mongo id"
+    branchId: ID!
+    "integer min 0 default 0"
     offset: Int
+    "integer min 5 default 10"
     count: Int
+    "must be a valid mongo id"
     category: ID
   ): [Recipe]
 
@@ -109,12 +146,16 @@ type Query {
 
 type Mutation {
   updateUser(
-    email: String
     password: String
+    "must be a valid email"
+    email: String
     "security requires the user password when user changes his password or email"
     security: String
+    "min length 3 max length 30"
     firstName: String
+    "min length 3 max length 30"
     lastName: String
+    "min length 3 max length 15"
     phoneNr: String
   ): User
 
@@ -123,17 +164,19 @@ type Mutation {
   #######################################
 
   addRestaurant(
-    name: String!
     "min length 3 max length 60"
+    name: String!
     plan: restaurantPlanEnum!
     status: restaurantStatusEnum!
     principalBranchOffice: addRestaurantBrachInput!
   ): Restaurant
 
   updateRestaurant(
-    name: String
     plan: restaurantPlanEnum
     status: restaurantStatusEnum
+    "min length 3 max length 60"
+    name: String
+    "must be a valid mongo id"
     id: ID!
   ): Restaurant
 
@@ -144,6 +187,7 @@ type Mutation {
   #######################################
 
   addBranchOffice(
+    "must be a valid mongo id"
     restaurantId: ID!
     "min length 3 max length 60"
     name: String!
@@ -164,6 +208,7 @@ type Mutation {
   # deleteBranchOffice(id: ID!): BranchOffice
 
   updateBranchOffice(
+    "must be a valid mongo id"
     id: ID!
     "min length 3 max length 60"
     name: String
@@ -186,9 +231,12 @@ type Mutation {
   #######################################
 
   addBranchInvite (
-    branchId: ID!
-    userEmail: String!
     branchRole: [branchRoleEnum!]!
+    "must be a valid mongo id"
+    branchId: ID!
+    "must be a valid email"
+    userEmail: String!
+    "must be a valid mongo id array"
     categoriesId: [ID!]!
   ): BranchOffice
 
@@ -196,11 +244,16 @@ type Mutation {
   # BRANCH ACCESS MUTATIONS
   #######################################
 
-  deleteBranchAccess(id: ID!): User
+  deleteBranchAccess(
+    "must be a valid mongo id"
+    id: ID!
+  ): User
 
   updateBranchAccess(
-    id: ID!
     branchRole: [branchRoleEnum!]
+    "must be a valid mongo id"
+    id: ID!
+    "must be a valid mongo id"
     categoriesId: [ID!]
   ): User
 
@@ -209,30 +262,39 @@ type Mutation {
   #######################################
 
   addProduct(
-    name: String!
+    measureUnit: measureUnitsEnum
     "min length 3 max length 50"
-    description: String!
+    name: String!
     "min length 3 max length 100"
+    description: String!
+    "must be a valid mongo id"
     category: ID!
     "must be a valid mongo id"
     branchId: ID!
-    "must be a valid mongo id"
+    "integer min 1"
     countableAmount: Int!
-    measureUnit: measureUnitsEnum
+    "integer min 1"
     contentAmountWeight: Int!
   ): Product
 
   updateProduct(
-    name: String
-    description: String
-    category: ID
-    countableAmount: Int
     measureUnit: measureUnitsEnum
+    "min length 3 max length 50"
+    name: String
+    "min length 3 max length 100"
+    description: String
+    "must be a valid mongo id"
+    category: ID
+    "integer min 1"
+    countableAmount: Int
+    "integer min 1"
     contentAmountWeight: Int
+    "must be a valid mongo id"
     id: ID!
   ): Product
 
   deleteProduct(
+    "must be a valid mongo id"
     id: ID!
   ): Product
 
@@ -241,12 +303,16 @@ type Mutation {
   #######################################
 
   addInventoryEntry(
+    "must be a valid mongo id"
     productId: ID!
+    "integer min 1"
     quantity: Int!
+    "float num min 0.0001"
     purchasePrice: Float!
   ): InventoryEntry
 
   deleteInventoryEntry(
+    "must be a valid mongo id"
     id: ID!
   ): InventoryEntry
 
@@ -255,18 +321,25 @@ type Mutation {
   #######################################
 
   addProductCategory(
+    "min length 3 max length 50"
     name: String!
+    "must be a valid mongo id"
     branchId: ID!
   ): ProductCategory
 
-  deleteProductCategory(id: ID!): ProductCategory
+  deleteProductCategory(
+    "must be a valid mongo id"
+    id: ID!
+  ): ProductCategory
 
   #######################################
   # RECIPE CATEGORY MUTATIONS
   #######################################
 
   addRecipeCategory(
+    "min length 3 max length 50"
     name: String!
+    "must be a valid mongo id"
     branchId: ID!
   ): RecipeCategory
 
@@ -277,22 +350,35 @@ type Mutation {
   #######################################
 
   addProvider(
+    "min length 3 max length 60"
     name: String!
+    "min length 3 max length 30"
     phoneNr: String
+    "must be a valid email"
     email: String
-    desc: String
+    "min length 3 max length 100"
+    description: String
+    "must be a valid mongo id"
     restaurantId: ID!
   ): Provider
 
   updateProvider(
+    "must be a valid mongo id"
     id: ID!
+    "min length 3 max length 60"
     name: String
+    "min length 3 max length 30"
     phoneNr: String
+    "must be a valid email"
     email: String
-    desc: String
+    "min length 3 max length 100"
+    description: String
   ): Provider
 
-  deleteProvider(id: ID!): Provider
+  deleteProvider(
+    "must be a valid mongo id"
+    id: ID!
+  ): Provider
 
   #######################################
   # RECIPE MUTATIONS
