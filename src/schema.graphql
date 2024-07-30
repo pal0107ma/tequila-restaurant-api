@@ -142,6 +142,23 @@ type Query {
     category: ID
   ): [Recipe]
 
+  #######################################
+  # ORDER QUERIES
+  #######################################
+
+  order(
+    "must be a valid mongo id"
+    id: ID!
+  ): Order
+
+  orders(
+    "must be a valid mongo id"
+    branchId: ID!
+    "integer min 0 default 0"
+    offset: Int
+    "integer min 5 default 10"
+    count: Int
+  ): [Order]
 }
 
 type Mutation {
@@ -436,6 +453,45 @@ type Mutation {
     quantity: Float
   ): Recipe
 
+  #######################################
+  # ORDER MUTATIONS
+  #######################################
+
+  addOrder(
+    "must be a valid mongo id"
+    branchId: ID!
+  ): Order
+
+  deleteOrder(
+    "must be a valid mongo id"
+    id: ID!
+  ): Order
+
+  #######################################
+  # RECIPE ITEM MUTATIONS
+  #######################################
+
+  addOrderItem(
+    "must be a valid mongo id"
+    recipeId: ID!
+    "must be a valid mongo id"
+    orderId: ID!
+    "float num min 1"
+    quantity: Int!
+  ): Order
+
+  deleteOrderItem(
+    "must be a valid mongo id"
+    id: ID!
+  ): Order
+
+  updateOrderItem(
+    "must be a valid mongo id"
+    id: ID!
+    "float num min 1"
+    quantity: Int
+  ): Order
+
 }
 
 input addRestaurantBrachInput {
@@ -597,6 +653,25 @@ type RecipeItem {
   id: ID
   productId: ID
   quantity: Float
+}
+
+#######################################
+# ORDER
+#######################################
+
+type Order {
+  id: ID
+  items: [OrderItem]
+  branchId: ID
+  totalPrice: Float
+  createdAt: String
+  updatedAt: String
+}
+
+type OrderItem {
+  id: ID
+  recipeId: ID
+  quantity: Int
 }
 
 #######################################

@@ -42,6 +42,13 @@ import deleteRecipe from './resolvers/recipes/deleteRecipe.js'
 import addRecipeItem from './resolvers/recipe-items/addRecipeItem.js'
 import deleteRecipeItem from './resolvers/recipe-items/deleteRecipeItem.js'
 import updateRecipeItem from './resolvers/recipe-items/updateRecipeItem.js'
+import addOrderItem from './resolvers/orders/addOrderItem.js'
+import addOrder from './resolvers/orders/addOrder.js'
+import deleteOrder from './resolvers/orders/deleteOrder.js'
+import orders from './resolvers/orders/orders.js'
+import order from './resolvers/orders/order.js'
+import deleteOrderItem from './resolvers/orders/deleteOrderItem.js'
+import updateOrderItem from './resolvers/orders/updateOrderItem.js'
 
 const resolvers = {
   User: {
@@ -94,6 +101,13 @@ const resolvers = {
   RecipeItem: {
     id: (parent) => parent.id ?? parent._id
   },
+  Order: {
+    id: (parent) => parent.id ?? parent._id,
+    totalPrice: (parent) => parent.items.reduce((acc,{totalPrice })=> totalPrice + acc,0),
+  },
+  OrderItem: {
+    id: (parent) => parent.id ?? parent._id,
+  },
   Query: {
     userProfile,
     restaurant,
@@ -109,7 +123,9 @@ const resolvers = {
     providers,
     recipeCategories,
     recipes,
-    recipe
+    recipe,
+    order,
+    orders
   },
   Mutation: {
     updateUser,
@@ -139,7 +155,12 @@ const resolvers = {
     deleteRecipe,
     addRecipeItem,
     deleteRecipeItem,
-    updateRecipeItem
+    updateRecipeItem,
+    addOrderItem,
+    addOrder,
+    deleteOrder,
+    deleteOrderItem,
+    updateOrderItem,
   }
 }
 
