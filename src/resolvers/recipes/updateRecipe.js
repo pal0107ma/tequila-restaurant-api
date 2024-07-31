@@ -15,9 +15,10 @@ async function updateRecipe(__, args,context) {
     name: Joi.string().trim().min(3).max(30).optional().empty(null),
     description: Joi.string().trim().min(3).max(60).optional().empty(null),
     category: idSchema.optional().empty(null),
+    portions: Joi.number().min(1).optional().empty()
   })
 
-  const { error, value: { id, category: categoryId, name, description }} = schema.validate(args)
+  const { error, value: { id, category: categoryId, name, description, portions }} = schema.validate(args)
 
   if (error) {
     throw new GraphQLError(error.message, {
@@ -79,6 +80,8 @@ async function updateRecipe(__, args,context) {
   if(name) recipe.name = name
 
   if(description) recipe.description = description
+
+  if(portions) recipe.portions = portions
 
   await recipe.save()
 

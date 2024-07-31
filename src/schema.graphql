@@ -324,7 +324,7 @@ type Mutation {
     productId: ID!
     "integer min 1"
     quantity: Int!
-    "float num min 0.0001"
+    "float num greater than 0"
     purchasePrice: Float!
   ): InventoryEntry
 
@@ -410,6 +410,8 @@ type Mutation {
     name: String!
    "must be a valid mongo id"
     category: ID!
+    "integer min 1"
+    portions: Int
   ): Recipe
 
   deleteRecipe(
@@ -437,7 +439,7 @@ type Mutation {
     productId: ID!
     "must be a valid mongo id"
     recipeId: ID!
-    "float num min 0.0001"
+    "float num greater than 0"
     quantity: Float!
   ): Recipe
 
@@ -449,7 +451,7 @@ type Mutation {
   updateRecipeItem(
     "must be a valid mongo id"
     id: ID!
-    "float num min 0.0001"
+    "float num greater than 0"
     quantity: Float
   ): Recipe
 
@@ -647,6 +649,9 @@ type Recipe {
   items: [RecipeItem]
   branchId: ID
   category: ID
+  portions: Int
+  createdAt: String
+  updatedAt: String
 }
 
 type RecipeItem {

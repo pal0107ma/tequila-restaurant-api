@@ -25,6 +25,10 @@ const recipeSchema = new Schema({
     required: true,
     ref: 'recipe_category'
   },
+  portions: {
+    type: Number,
+    default: 1
+  }
 },{
     timestamps: true,
     versionKey: false

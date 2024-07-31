@@ -13,6 +13,7 @@ async function addRecipe (__,args, context){
 			description: Joi.string().min(3).max(60),
 			branchId: idSchema,
 			category: idSchema,
+      portions: Joi.number().min(1)
 	})
 
 	const { error, value: { branchId, category: categoryId, ...input }} = schema.validate(args)

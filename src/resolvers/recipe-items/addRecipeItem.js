@@ -13,7 +13,7 @@ async function addRecipeItem(__, args,context) {
   const schema = Joi.object().keys({
     recipeId: idSchema,
     productId: idSchema,
-    quantity: Joi.number().min(0.0001),
+    quantity: Joi.number().greater(0),
   })
 
   const { error, value: { recipeId, quantity,productId }} = schema.validate(args)

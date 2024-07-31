@@ -4,6 +4,7 @@ import Recipe from "../../models/Recipe.js"
 import Restaurant from "../../models/Restaurant.js"
 import BranchOffice from "../../models/BranchOffice.js"
 import client from "../../db/redis.client.js"
+import Order from "../../models/Order.js"
 
 async function deleteRecipe (__,{id},context) {
 
@@ -19,7 +20,7 @@ async function deleteRecipe (__,{id},context) {
     })
   }
 
-  const recipe = await Recipe.findById(id).select('branchId')
+  const recipe = await Recipe.findById(id)
 
   if(!recipe) return null
 
@@ -40,6 +41,19 @@ async function deleteRecipe (__,{id},context) {
       extensions: {
         code: 'RECIPE_ACCESS_DENIED',
         http: { status: 403 }
+      }
+    })
+  }
+
+  const orders = await Order.find({
+    'items.recipeId': id
+  })
+
+  if(orders.length) {
+    throw new GraphQLError('cannot delete recipe', {
+      extensions: {
+        code: 'CANNOT_DELETE_RECIPE', // Use a custom error code for access denial
+        http: { status: 409 }
       }
     })
   }
