@@ -49,6 +49,7 @@ import orders from './resolvers/orders/orders.js'
 import order from './resolvers/orders/order.js'
 import deleteOrderItem from './resolvers/orders/deleteOrderItem.js'
 import updateOrderItem from './resolvers/orders/updateOrderItem.js'
+import productPrice from './resolvers/products/productPrice.js'
 
 const resolvers = {
   User: {
@@ -79,7 +80,8 @@ const resolvers = {
     id: (parent) => parent.id ?? parent._id
   },
   Product: {
-    id: (parent) => parent.id ?? parent._id
+    id: (parent) => parent.id ?? parent._id,
+    averagePrice: productPrice
   },
   Provider: {
     id: (parent) => parent.id ?? parent._id
@@ -99,7 +101,8 @@ const resolvers = {
     id: (parent) => parent.id ?? parent._id
   },
   RecipeItem: {
-    id: (parent) => parent.id ?? parent._id
+    id: (parent) => parent.id ?? parent._id,
+    productPrice
   },
   Order: {
     id: (parent) => parent.id ?? parent._id,

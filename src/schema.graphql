@@ -658,6 +658,7 @@ type RecipeItem {
   id: ID
   productId: ID
   quantity: Float
+  productPrice: Float
 }
 
 #######################################
@@ -713,6 +714,7 @@ type Product {
   countableAmount: Int
   measureUnit: measureUnitsEnum
   contentAmountWeight: Int
+  averagePrice: Float
   createdAt: String
   updatedAt: String
 }
