@@ -8,6 +8,8 @@ import auth from './routers/auth.js'
 import graphql from './routers/graphql.js'
 import verifyJWT from './middlewares/auth/verifyJWT.js'
 import logger from 'morgan'
+import superAdminDashboard from './routers/superAdminDashboard.js'
+import onlySuperAdmin from './middlewares/onlySuperAdmin.js'
 
 const app = express()
 
@@ -31,5 +33,7 @@ app.use('/auth', auth)
 app.use('/branch-invites', branchInvites)
 
 app.use('/graphql', verifyJWT, graphql)
+
+app.use('/superadmin-dashboard', verifyJWT, onlySuperAdmin, superAdminDashboard)
 
 export default app
