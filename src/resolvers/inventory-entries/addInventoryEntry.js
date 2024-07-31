@@ -7,14 +7,14 @@ import Joi from "joi"
 import idSchema from "../../schemas/idSchema.js"
 import { GraphQLError } from "graphql"
 import InventoryEntry from "../../models/InventoryEntry.js"
+import client from "../../db/redis.client.js"
 
 async function addInventoryEntry (__, args, context) {
 
   // Define schema for input validation using Joi
   const schema = Joi.object().keys({
-    branchId: idSchema,
     productId: idSchema,
-    purchasePrice: Joi.number().min(0.0001),
+    purchasePrice: Joi.number().greater(0),
     quantity: Joi.number().integer().min(1),
   })
 
@@ -85,6 +85,8 @@ async function addInventoryEntry (__, args, context) {
     totalUnits,
     unitCost: (purchasePrice / totalUnits).toFixed(4)
   })
+
+  await client.del(`product_price:${productId}`)
 
   // Save the inventory entry to the database
   await inventoryEntry.save()
