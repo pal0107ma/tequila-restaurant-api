@@ -18,7 +18,7 @@ async function emptyInventoryEntriesOuts ({
 
       fiat += inventoryEntry.unitCost * totalProductContent
 
-      inventoryEntry.outs = [used - totalProductContent]
+      inventoryEntry.outs = [(used - totalProductContent).toFixed(4)]
 
       toUpdate.push(inventoryEntry)
       
