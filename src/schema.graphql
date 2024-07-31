@@ -159,6 +159,21 @@ type Query {
     "integer min 5 default 10"
     count: Int
   ): [Order]
+
+  #######################################
+  # INVENTORY LOSS QUERIES
+  #######################################
+
+  inventoryLosses(
+    "must be a valid mongo id"
+    branchId: ID!
+    "must be a valid mongo id"
+    productId: ID
+    "integer min 0 default 0"
+    offset: Int
+    "integer min 5 default 10"
+    count: Int
+  ): [InventoryLoss]
 }
 
 type Mutation {
@@ -494,6 +509,21 @@ type Mutation {
     quantity: Int
   ): Order
 
+  #######################################
+  # INVENTORY LOSS MUTATIONS
+  #######################################
+
+  addInventoryLoss(
+    "must be a valid mongo id"
+    productId: ID!
+    "float num greater than 0"
+    quantity: Float!
+  ): InventoryLoss
+
+  deleteInventoryLoss(
+    "must be a valid mongo id"
+    id: ID!
+  ): InventoryLoss
 }
 
 input addRestaurantBrachInput {
@@ -593,6 +623,20 @@ enum branchRoleEnum {
   STORER
   HR
   CHEF
+}
+
+#######################################
+# INVENTORY LOSSES
+#######################################
+
+type InventoryLoss {
+  id: ID
+  quantity: Int
+  productId: ID
+  branchId: ID
+  cost: Float
+  createdAt: String
+  updatedAt: String
 }
 
 #######################################
@@ -722,6 +766,12 @@ type Product {
 enum measureUnitsEnum {
   OZ
   LIB
+  LTS
+  ML
+  KG
+  GR
+  KG_GR
+  LTS_ML
 }
 
 #######################################

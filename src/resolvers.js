@@ -50,6 +50,9 @@ import order from './resolvers/orders/order.js'
 import deleteOrderItem from './resolvers/orders/deleteOrderItem.js'
 import updateOrderItem from './resolvers/orders/updateOrderItem.js'
 import productPrice from './resolvers/products/productPrice.js'
+import addInventoryLoss from './resolvers/inventory-loss/addInventoryLoss.js'
+import deleteInventoryLoss from './resolvers/inventory-loss/deleteInventoryLoss.js'
+import inventoryLosses from './resolvers/inventory-loss/inventoryLosses.js'
 
 const resolvers = {
   User: {
@@ -111,6 +114,9 @@ const resolvers = {
   OrderItem: {
     id: (parent) => parent.id ?? parent._id,
   },
+  InventoryLoss: {
+    id: (parent) => parent.id ?? parent._id,
+  },
   Query: {
     userProfile,
     restaurant,
@@ -128,7 +134,8 @@ const resolvers = {
     recipes,
     recipe,
     order,
-    orders
+    orders,
+    inventoryLosses
   },
   Mutation: {
     updateUser,
@@ -164,6 +171,8 @@ const resolvers = {
     deleteOrder,
     deleteOrderItem,
     updateOrderItem,
+    addInventoryLoss,
+    deleteInventoryLoss
   }
 }
 
